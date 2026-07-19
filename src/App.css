@@ -1309,14 +1309,43 @@
 }
 
 @keyframes pipetteAnim {
-  0% { transform: translate(0, 0); opacity: 0; }
+  0% { transform: translate(0, -60px); opacity: 0; }
   10% { transform: translate(0, -40px); opacity: 1; }
-  25% { transform: translate(0, 20px); } /* Insert into standard flask */
+  25% { transform: translate(0, 110px); } /* Insert into standard flask */
   40% { transform: translate(0, -40px); } /* Lift with liquid */
   65% { transform: translate(145px, -40px); } /* Move to reaction beaker */
-  75% { transform: translate(145px, 20px); } /* Lower in beaker */
+  75% { transform: translate(145px, 140px); } /* Lower in beaker */
   90% { transform: translate(145px, -40px); } /* Dispense & lift */
-  100% { transform: translate(0, -40px); opacity: 0; }
+  100% { transform: translate(0, -60px); opacity: 0; }
+}
+
+/* Dilution Pipette 1 Animation */
+.animate-dilution-pipette-1 {
+  animation: dilPipette1Anim 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes dilPipette1Anim {
+  0% { transform: translate(0, -60px); opacity: 0; }
+  10% { transform: translate(0, -40px); opacity: 1; }
+  25% { transform: translate(0, 140px); } /* Draw from reaction beaker */
+  45% { transform: translate(0, -40px); }
+  65% { transform: translate(160px, -40px); } /* Move to dilution beaker */
+  80% { transform: translate(160px, 140px); } /* Dispense */
+  90% { transform: translate(160px, -40px); }
+  100% { transform: translate(160px, -60px); opacity: 0; }
+}
+
+/* Dilution Pipette 2 Animation */
+.animate-dilution-pipette-2 {
+  animation: dilPipette2Anim 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes dilPipette2Anim {
+  0% { transform: translate(0, -60px); opacity: 0; }
+  20% { transform: translate(0, -40px); opacity: 1; }
+  55% { transform: translate(0, 140px); } /* Dispense distilled water */
+  80% { transform: translate(0, -40px); }
+  100% { transform: translate(0, -60px); opacity: 0; }
 }
 
 /* 5. Liquid Pour Stream Effect */

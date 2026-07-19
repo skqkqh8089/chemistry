@@ -1284,14 +1284,43 @@
       }
 
       @keyframes pipetteAnim {
-        0% { transform: translate(0, 0); opacity: 0; }
+        0% { transform: translate(0, -60px); opacity: 0; }
         10% { transform: translate(0, -40px); opacity: 1; }
-        25% { transform: translate(0, 20px); } /* Insert into standard flask */
+        25% { transform: translate(0, 110px); } /* Insert into standard flask */
         40% { transform: translate(0, -40px); } /* Lift with liquid */
         65% { transform: translate(145px, -40px); } /* Move to reaction beaker */
-        75% { transform: translate(145px, 20px); } /* Lower in beaker */
+        75% { transform: translate(145px, 140px); } /* Lower in beaker */
         90% { transform: translate(145px, -40px); } /* Dispense & lift */
-        100% { transform: translate(0, -40px); opacity: 0; }
+        100% { transform: translate(0, -60px); opacity: 0; }
+      }
+
+      /* Dilution Pipette 1 Animation */
+      .animate-dilution-pipette-1 {
+        animation: dilPipette1Anim 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+
+      @keyframes dilPipette1Anim {
+        0% { transform: translate(0, -60px); opacity: 0; }
+        10% { transform: translate(0, -40px); opacity: 1; }
+        25% { transform: translate(0, 140px); } /* Draw from reaction beaker */
+        45% { transform: translate(0, -40px); }
+        65% { transform: translate(160px, -40px); } /* Move to dilution beaker */
+        80% { transform: translate(160px, 140px); } /* Dispense */
+        90% { transform: translate(160px, -40px); }
+        100% { transform: translate(160px, -60px); opacity: 0; }
+      }
+
+      /* Dilution Pipette 2 Animation */
+      .animate-dilution-pipette-2 {
+        animation: dilPipette2Anim 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+
+      @keyframes dilPipette2Anim {
+        0% { transform: translate(0, -60px); opacity: 0; }
+        20% { transform: translate(0, -40px); opacity: 1; }
+        55% { transform: translate(0, 140px); } /* Dispense distilled water */
+        80% { transform: translate(0, -40px); }
+        100% { transform: translate(0, -60px); opacity: 0; }
       }
 
       /* 5. Liquid Pour Stream Effect */
@@ -1758,6 +1787,10 @@
       let isPipetting = false;
       let isPouringGlycine = false;
       let hasSolidInBeaker = false;
+      let isPipetting1 = false;
+      let isPipetting2 = false;
+      let dilutionBeakerLiquid = 0;
+      let dilutionBeakerColor = 'transparent';
 
       function renderPhase1(container) {
         const layout = document.createElement('div');
@@ -1951,6 +1984,43 @@
             <div class="pipette-liquid-content" style="height: 70%"></div>
           `;
           benchDisplay.appendChild(pipetteOverlay);
+        }
+
+        if (isPipetting1) {
+          const pipetteOverlay = document.createElement('div');
+          pipetteOverlay.className = 'pipette-tool-animate animate-dilution-pipette-1';
+          pipetteOverlay.style.left = 'calc(50% - 130px)';
+          pipetteOverlay.innerHTML = `
+            <div class="pipette-bulb"></div>
+            <div class="pipette-liquid-content" style="height: 0%; background-color: ${state.activeTab === 2 ? 'var(--color-nh3-deep)' : 'var(--color-glycine)'}; transition: height 0.8s ease;"></div>
+          `;
+          benchDisplay.appendChild(pipetteOverlay);
+          
+          setTimeout(() => {
+            const liq = pipetteOverlay.querySelector('.pipette-liquid-content');
+            if (liq) liq.style.height = '70%';
+          }, 800);
+          
+          setTimeout(() => {
+            const liq = pipetteOverlay.querySelector('.pipette-liquid-content');
+            if (liq) liq.style.height = '0%';
+          }, 2400);
+        }
+
+        if (isPipetting2) {
+          const pipetteOverlay = document.createElement('div');
+          pipetteOverlay.className = 'pipette-tool-animate animate-dilution-pipette-2';
+          pipetteOverlay.style.left = 'calc(50% + 30px)';
+          pipetteOverlay.innerHTML = `
+            <div class="pipette-bulb"></div>
+            <div class="pipette-liquid-content" style="height: 70%; background-color: rgba(241, 245, 249, 0.45); transition: height 1.2s ease;"></div>
+          `;
+          benchDisplay.appendChild(pipetteOverlay);
+          
+          setTimeout(() => {
+            const liq = pipetteOverlay.querySelector('.pipette-liquid-content');
+            if (liq) liq.style.height = '0%';
+          }, 1500);
         }
 
 
@@ -2193,9 +2263,9 @@
           tab2Wrapper.style.gap = '2rem';
           tab2Wrapper.style.width = '100%';
           tab2Wrapper.innerHTML = `
-            <div style="display: flex; gap: 2rem; align-items: flex-end; justify-content: center; width: 100%; position: relative;">
-              <!-- Beaker -->
-              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
+            <div style="display: flex; gap: 2.5rem; align-items: flex-end; justify-content: center; width: 100%; position: relative;">
+              <!-- Reaction Beaker -->
+              <div class="beaker-container" style="transition: all 0.3s; position: relative;">
                 ${localDropAnimation ? `
                   <div class="dropper-wrapper" style="position: absolute; top: -110px; left: calc(50% - 12px); z-index: 30;">
                     <div class="dropper-bulb"></div>
@@ -2208,14 +2278,32 @@
                 ` : ''}
                 <div class="beaker">
                   ${state.nh3State.cuAdded ? `
-                    <div class="liquid" style="height: 35%; background-color: ${state.nh3State.solutionColor};">
-                      <span style="font-size: 0.65rem; color: #fff; z-index: 10;">${state.nh3State.diluted ? '10 mL (1/10 묽힘)' : '3 mL'}</span>
+                    <div class="liquid" style="height: ${(state.nh3State.diluted || dilutionBeakerLiquid > 0) ? '23%' : '35%'}; background-color: var(--color-nh3-deep);">
+                      <span style="font-size: 0.65rem; color: #fff; z-index: 10;">
+                        ${(state.nh3State.diluted || dilutionBeakerLiquid > 0) ? '2 mL' : '3 mL'}
+                      </span>
                     </div>
                   ` : ''}
                   ${state.nh3State.hasPrecipitate ? '<div class="precipitate"></div>' : ''}
                 </div>
                 <span style="font-size: 0.75rem; margin-top: 0.5rem; font-weight: bold;">반응 비커</span>
               </div>
+
+              <!-- Dilution Beaker -->
+              ${(state.nh3State.diluted || dilutionBeakerLiquid > 0) ? `
+                <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
+                  <div class="beaker" style="width: 100px; height: 120px;">
+                    ${dilutionBeakerLiquid > 0 ? `
+                      <div class="liquid" style="height: ${state.nh3State.inCuvette ? '0%' : (dilutionBeakerLiquid + '%')}; background-color: ${dilutionBeakerColor};">
+                        <span style="font-size: 0.65rem; color: #fff; z-index: 10;">
+                          ${state.nh3State.inCuvette ? '0 mL' : (dilutionBeakerLiquid === 10 ? '1 mL' : '10 mL')}
+                        </span>
+                      </div>
+                    ` : ''}
+                  </div>
+                  <span style="font-size: 0.75rem; margin-top: 0.5rem; font-weight: bold;">희석 비커</span>
+                </div>
+              ` : ''}
 
               <!-- Cuvette -->
               <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2); position: relative;">
@@ -2274,7 +2362,7 @@
               ` : ''}
 
               <!-- Beaker -->
-              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
+              <div class="beaker-container" style="transition: all 0.3s; position: relative;">
                 ${isPouringGlycine ? `
                   <div class="liquid-pour-stream active" style="left: 60px; top: 0; height: 60px; background-color: rgba(255,255,255,0.2); z-index: 5;"></div>
                 ` : ''}
@@ -2290,9 +2378,9 @@
                 ` : ''}
                 <div class="beaker">
                   ${state.glycineState.cuAdded ? `
-                    <div class="liquid" style="height: 35%; background-color: ${state.glycineState.solutionColor};">
+                    <div class="liquid" style="height: ${(state.glycineState.diluted || dilutionBeakerLiquid > 0) ? '57%' : (state.glycineState.mixed ? '65%' : '35%')}; background-color: ${state.glycineState.solutionColor};">
                       <span style="font-size: 0.65rem; color: #fff; z-index: 10;">
-                        ${state.glycineState.mixed ? (state.glycineState.diluted ? '10 mL (1/10 묽힘)' : '8 mL') : '3 mL'}
+                        ${(state.glycineState.diluted || dilutionBeakerLiquid > 0) ? '7 mL' : (state.glycineState.mixed ? '8 mL' : '3 mL')}
                       </span>
                     </div>
                   ` : ''}
@@ -2309,6 +2397,22 @@
                     ` : ''}
                   </div>
                   <span style="font-size: 0.7rem; margin-top: 0.5rem;">글라이신 비커</span>
+                </div>
+              ` : ''}
+
+              <!-- Dilution Beaker -->
+              ${(state.glycineState.diluted || dilutionBeakerLiquid > 0) ? `
+                <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
+                  <div class="beaker" style="width: 100px; height: 120px;">
+                    ${dilutionBeakerLiquid > 0 ? `
+                      <div class="liquid" style="height: ${state.glycineState.inCuvette ? '0%' : (dilutionBeakerLiquid + '%')}; background-color: ${dilutionBeakerColor};">
+                        <span style="font-size: 0.65rem; color: #fff; z-index: 10;">
+                          ${state.glycineState.inCuvette ? '0 mL' : (dilutionBeakerLiquid === 10 ? '1 mL' : '10 mL')}
+                        </span>
+                      </div>
+                    ` : ''}
+                  </div>
+                  <span style="font-size: 0.75rem; margin-top: 0.5rem; font-weight: bold;">희석 비커</span>
                 </div>
               ` : ''}
 
@@ -2698,14 +2802,35 @@
         if (nh3Dilute) {
           nh3Dilute.onclick = () => {
             localLoading = true;
+            isPipetting1 = true;
             updateUI();
+            
             setTimeout(() => {
+              dilutionBeakerLiquid = 10;
+              dilutionBeakerColor = 'var(--color-nh3-deep)';
+              updateUI();
+            }, 2200);
+
+            setTimeout(() => {
+              isPipetting1 = false;
+              isPipetting2 = true;
+              updateUI();
+            }, 3200);
+
+            setTimeout(() => {
+              dilutionBeakerLiquid = 35;
+              dilutionBeakerColor = 'rgba(59, 130, 246, 0.8)';
+              updateUI();
+            }, 3200 + 1500);
+
+            setTimeout(() => {
+              isPipetting2 = false;
               state.nh3State.diluted = true;
               state.nh3State.solutionColor = 'rgba(59, 130, 246, 0.8)';
               localLoading = false;
               state.subStep = 4;
               updateUI();
-            }, 1000);
+            }, 3200 + 3200);
           };
         }
         const nh3ToCuvette = layout.querySelector('#btn-nh3-to-cuvette');
@@ -2796,14 +2921,35 @@
         if (glyDilute) {
           glyDilute.onclick = () => {
             localLoading = true;
+            isPipetting1 = true;
             updateUI();
+            
             setTimeout(() => {
+              dilutionBeakerLiquid = 10;
+              dilutionBeakerColor = 'var(--color-glycine)';
+              updateUI();
+            }, 2200);
+
+            setTimeout(() => {
+              isPipetting1 = false;
+              isPipetting2 = true;
+              updateUI();
+            }, 3200);
+
+            setTimeout(() => {
+              dilutionBeakerLiquid = 35;
+              dilutionBeakerColor = 'rgba(167, 139, 250, 0.7)';
+              updateUI();
+            }, 3200 + 1500);
+
+            setTimeout(() => {
+              isPipetting2 = false;
               state.glycineState.diluted = true;
               state.glycineState.solutionColor = 'rgba(167, 139, 250, 0.7)';
               localLoading = false;
               state.subStep = 5;
               updateUI();
-            }, 1000);
+            }, 3200 + 3200);
           };
         }
         const glyToCuvette = layout.querySelector('#btn-gly-to-cuvette');

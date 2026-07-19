@@ -34,6 +34,12 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
   const [flaskLiquid, setFlaskLiquid] = useState(0); // mL
   const [rinseCount, setRinseCount] = useState(0);
   const [shaken, setShaken] = useState(false);
+  const [isPipetting1, setIsPipetting1] = useState(false);
+  const [isPipetting2, setIsPipetting2] = useState(false);
+  const [dilutionBeakerLiquid, setDilutionBeakerLiquid] = useState(0);
+  const [dilutionBeakerColor, setDilutionBeakerColor] = useState('transparent');
+  const [pipetteLiquidHeight, setPipetteLiquidHeight] = useState(0);
+  const [waterPipetteHeight, setWaterPipetteHeight] = useState(70);
 
   // Specific states for NaCl Rx (activeTab 1)
   const [naclState, setNaclState] = useState({
@@ -82,6 +88,10 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
     setIsPipetting(false);
     setIsPouringGlycine(false);
     setHasSolidInBeaker(false);
+    setIsPipetting1(false);
+    setIsPipetting2(false);
+    setDilutionBeakerLiquid(0);
+    setDilutionBeakerColor('transparent');
   };
 
   // Helper: Trigger liquid drop animation
@@ -314,16 +324,46 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
   const diluteNH3 = () => {
     setLoading(true);
+    setIsPipetting1(true);
+    setPipetteLiquidHeight(0);
+    setWaterPipetteHeight(70);
+    
+    // Pipette 1 draws liquid
     setTimeout(() => {
+      setPipetteLiquidHeight(70);
+    }, 800);
+
+    // Pipette 1 dispenses into dilution beaker
+    setTimeout(() => {
+      setPipetteLiquidHeight(0);
+      setDilutionBeakerLiquid(10);
+      setDilutionBeakerColor('var(--color-nh3-deep)');
+    }, 2400);
+
+    // Pipette 1 ends, Pipette 2 starts
+    setTimeout(() => {
+      setIsPipetting1(false);
+      setIsPipetting2(true);
+    }, 3200);
+
+    // Pipette 2 dispenses distilled water
+    setTimeout(() => {
+      setWaterPipetteHeight(0);
+      setDilutionBeakerLiquid(35);
+      setDilutionBeakerColor('rgba(59, 130, 246, 0.8)');
+    }, 3200 + 1500);
+
+    // Pipette 2 ends, dilution completes
+    setTimeout(() => {
+      setIsPipetting2(false);
       setNh3State(prev => ({ 
         ...prev, 
         diluted: true,
-        // Dilation lightens the deep blue slightly
         solutionColor: 'rgba(59, 130, 246, 0.8)' 
       }));
       setLoading(false);
       setSubStep(4);
-    }, 1000);
+    }, 3200 + 3200);
   };
 
   const pourNH3ToCuvette = () => {
@@ -395,15 +435,46 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
   const diluteGlycine = () => {
     setLoading(true);
+    setIsPipetting1(true);
+    setPipetteLiquidHeight(0);
+    setWaterPipetteHeight(70);
+    
+    // Pipette 1 draws liquid
     setTimeout(() => {
+      setPipetteLiquidHeight(70);
+    }, 800);
+
+    // Pipette 1 dispenses into dilution beaker
+    setTimeout(() => {
+      setPipetteLiquidHeight(0);
+      setDilutionBeakerLiquid(10);
+      setDilutionBeakerColor('var(--color-glycine)');
+    }, 2400);
+
+    // Pipette 1 ends, Pipette 2 starts
+    setTimeout(() => {
+      setIsPipetting1(false);
+      setIsPipetting2(true);
+    }, 3200);
+
+    // Pipette 2 dispenses distilled water
+    setTimeout(() => {
+      setWaterPipetteHeight(0);
+      setDilutionBeakerLiquid(35);
+      setDilutionBeakerColor('rgba(167, 139, 250, 0.7)');
+    }, 3200 + 1500);
+
+    // Pipette 2 ends, dilution completes
+    setTimeout(() => {
+      setIsPipetting2(false);
       setGlycineState(prev => ({ 
         ...prev, 
         diluted: true,
-        solutionColor: 'rgba(167, 139, 250, 0.7)' // Slightly diluted purple
+        solutionColor: 'rgba(167, 139, 250, 0.7)' 
       }));
       setLoading(false);
       setSubStep(5);
-    }, 1000);
+    }, 3200 + 3200);
   };
 
   const pourGlyToCuvette = () => {
@@ -604,6 +675,20 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
             <div className="pipette-tool-animate animate-pipetting">
               <div className="pipette-bulb"></div>
               <div className="pipette-liquid-content" style={{ height: '70%' }}></div>
+            </div>
+          )}
+
+          {isPipetting1 && (
+            <div className="pipette-tool-animate animate-dilution-pipette-1" style={{ left: 'calc(50% - 130px)' }}>
+              <div className="pipette-bulb"></div>
+              <div id="dilution-pipette-1-liquid" className="pipette-liquid-content" style={{ height: `${pipetteLiquidHeight}%`, backgroundColor: activeTab === 2 ? 'var(--color-nh3-deep)' : 'var(--color-glycine)', transition: 'height 0.8s ease' }}></div>
+            </div>
+          )}
+
+          {isPipetting2 && (
+            <div className="pipette-tool-animate animate-dilution-pipette-2" style={{ left: 'calc(50% + 30px)' }}>
+              <div className="pipette-bulb"></div>
+              <div className="pipette-liquid-content" style={{ height: `${waterPipetteHeight}%`, backgroundColor: 'rgba(241, 245, 249, 0.45)', transition: 'height 1.2s ease' }}></div>
             </div>
           )}
 
@@ -851,7 +936,7 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
               <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-end', position: 'relative' }}>
                 {/* Reaction Beaker */}
-                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
+                <div className="beaker-container" style={{ transition: 'all 0.3s', position: 'relative' }}>
                   {dropAnimation && (
                     <div className="dropper-wrapper" style={{ position: 'absolute', top: '-110px', left: 'calc(50% - 12px)', zIndex: 30 }}>
                       <div className="dropper-bulb"></div>
@@ -864,14 +949,32 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                   )}
                   <div className="beaker">
                     {nh3State.cuAdded && (
-                      <div className="liquid" style={{ height: '35%', backgroundColor: nh3State.solutionColor }}>
-                        <span style={{ fontSize: '0.65rem', color: '#fff', zIndex: 10 }}>{nh3State.diluted ? '10 mL (1/10 묽힘)' : '3 mL'}</span>
+                      <div className="liquid" style={{ height: (nh3State.diluted || dilutionBeakerLiquid > 0) ? '23%' : '35%', backgroundColor: 'var(--color-nh3-deep)' }}>
+                        <span style={{ fontSize: '0.65rem', color: '#fff', zIndex: 10 }}>
+                          {(nh3State.diluted || dilutionBeakerLiquid > 0) ? '2 mL' : '3 mL'}
+                        </span>
                       </div>
                     )}
                     {nh3State.hasPrecipitate && <div className="precipitate"></div>}
                   </div>
                   <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 'bold' }}>반응 비커</span>
                 </div>
+
+                {/* Dilution Beaker */}
+                {(nh3State.diluted || dilutionBeakerLiquid > 0) && (
+                  <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
+                    <div className="beaker" style={{ width: '100px', height: '120px' }}>
+                      {dilutionBeakerLiquid > 0 && (
+                        <div className="liquid" style={{ height: nh3State.inCuvette ? '0%' : `${dilutionBeakerLiquid}%`, backgroundColor: dilutionBeakerColor }}>
+                          <span style={{ fontSize: '0.65rem', color: '#fff', zIndex: 10 }}>
+                            {nh3State.inCuvette ? '0 mL' : (dilutionBeakerLiquid === 10 ? '1 mL' : '10 mL')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 'bold' }}>희석 비커</span>
+                  </div>
+                )}
 
                 {/* Cuvette 2 */}
                 <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)', position: 'relative' }}>
@@ -931,7 +1034,7 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                 )}
 
                 {/* Reaction Beaker */}
-                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
+                <div className="beaker-container" style={{ transition: 'all 0.3s', position: 'relative' }}>
                   {isPouringGlycine && (
                     <div className="liquid-pour-stream active" style={{ left: '60px', top: '0', height: '60px', backgroundColor: 'rgba(255,255,255,0.2)', zIndex: 5 }}></div>
                   )}
@@ -947,7 +1050,11 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                   )}
                   <div className="beaker">
                     {glycineState.cuAdded && (
-                      <div className="liquid" style={{ height: '35%', backgroundColor: glycineState.solutionColor }}></div>
+                      <div className="liquid" style={{ height: (glycineState.diluted || dilutionBeakerLiquid > 0) ? '57%' : (glycineState.mixed ? '65%' : '35%'), backgroundColor: glycineState.solutionColor }}>
+                        <span style={{ fontSize: '0.65rem', color: '#fff', zIndex: 10 }}>
+                          {(glycineState.diluted || dilutionBeakerLiquid > 0) ? '7 mL' : (glycineState.mixed ? '8 mL' : '3 mL')}
+                        </span>
+                      </div>
                     )}
                   </div>
                   <span style={{ fontSize: '0.7rem', marginTop: '0.5rem' }}>반응 비커</span>
@@ -962,6 +1069,22 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                       )}
                     </div>
                     <span style={{ fontSize: '0.7rem', marginTop: '0.5rem' }}>글라이신 비커</span>
+                  </div>
+                )}
+
+                {/* Dilution Beaker */}
+                {(glycineState.diluted || dilutionBeakerLiquid > 0) && (
+                  <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
+                    <div className="beaker" style={{ width: '100px', height: '120px' }}>
+                      {dilutionBeakerLiquid > 0 && (
+                        <div className="liquid" style={{ height: glycineState.inCuvette ? '0%' : `${dilutionBeakerLiquid}%`, backgroundColor: dilutionBeakerColor }}>
+                          <span style={{ fontSize: '0.65rem', color: '#fff', zIndex: 10 }}>
+                            {glycineState.inCuvette ? '0 mL' : (dilutionBeakerLiquid === 10 ? '1 mL' : '10 mL')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 'bold' }}>희석 비커</span>
                   </div>
                 )}
 
