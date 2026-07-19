@@ -616,6 +616,7 @@
         right: 0;
         height: 1.5px;
         background: #ef4444;
+        z-index: 10;
       }
 
       .flask-body {
@@ -1323,39 +1324,42 @@
       /* 6. Pouring Beaker (Beaker -> Flask) Animation */
       .animate-pouring-beaker {
         animation: pourBeakerAnim 1.8s ease-in-out forwards;
+        transform-origin: top right;
       }
 
       @keyframes pourBeakerAnim {
         0% { transform: translate(0, 0) rotate(0deg); }
-        30% { transform: translate(100px, -50px) rotate(15deg); }
-        42% { transform: translate(100px, -50px) rotate(75deg); }
-        75% { transform: translate(100px, -50px) rotate(75deg); }
+        30% { transform: translate(88px, -25px) rotate(15deg); }
+        42% { transform: translate(88px, -25px) rotate(75deg); }
+        75% { transform: translate(88px, -25px) rotate(75deg); }
         100% { transform: translate(0, 0) rotate(0deg); }
       }
 
       /* 7. Pouring Beaker to Cuvette (Beaker -> Cuvette) Animation */
       .animate-pouring-to-cuvette {
         animation: pourCuvetteAnim 1.8s ease-in-out forwards;
+        transform-origin: top right;
       }
 
       @keyframes pourCuvetteAnim {
         0% { transform: translate(0, 0) rotate(0deg); }
-        30% { transform: translate(105px, -60px) rotate(15deg); }
-        42% { transform: translate(105px, -60px) rotate(75deg); }
-        75% { transform: translate(105px, -60px) rotate(75deg); }
+        30% { transform: translate(80px, 40px) rotate(15deg); }
+        42% { transform: translate(80px, 40px) rotate(75deg); }
+        75% { transform: translate(80px, 40px) rotate(75deg); }
         100% { transform: translate(0, 0) rotate(0deg); }
       }
 
       /* 8. Pouring Glycine Beaker into Reaction Beaker Animation */
       .animate-pouring-glycine-beaker {
         animation: pourGlycineAnim 1.8s ease-in-out forwards;
+        transform-origin: top left;
       }
 
       @keyframes pourGlycineAnim {
         0% { transform: translate(0, 0) rotate(0deg); }
-        30% { transform: translate(-75px, -50px) rotate(-15deg); }
-        42% { transform: translate(-75px, -50px) rotate(-75deg); }
-        75% { transform: translate(-75px, -50px) rotate(-75deg); }
+        30% { transform: translate(-80px, -40px) rotate(-15deg); }
+        42% { transform: translate(-80px, -40px) rotate(-75deg); }
+        75% { transform: translate(-80px, -40px) rotate(-75deg); }
         100% { transform: translate(0, 0) rotate(0deg); }
       }
 
@@ -2057,12 +2061,12 @@
               <!-- Volumetric Flask -->
               <div class="flask-container" style="position: relative;">
                 ${isPouring ? `
-                  <div class="liquid-pour-stream active" style="left: 55px; top: -110px; height: 110px; background-color: ${state.beakerLiquid > 0 ? 'var(--color-cuso4)' : 'rgba(56, 189, 248, 0.4)'};"></div>
+                  <div class="liquid-pour-stream active" style="left: 53px; top: 0; height: 60px; background-color: ${state.beakerLiquid > 0 ? 'var(--color-cuso4)' : 'rgba(56, 189, 248, 0.4)'}; z-index: 5;"></div>
                 ` : ''}
                 <div class="volumetric-flask">
                   <div class="flask-neck">
                     <div class="flask-neck-line"></div>
-                    <div id="flask-liquid-neck" class="flask-liquid" style="height: 100%; top: ${100 - ((state.flaskLiquid - 160) / 90) * 100}%; width: 100%; left: 0; display: ${state.flaskLiquid > 160 ? 'block' : 'none'};"></div>
+                    <div id="flask-liquid-neck" class="flask-liquid" style="height: ${((state.flaskLiquid - 160) / 90) * 30}px; width: 100%; left: 0; display: ${state.flaskLiquid > 160 ? 'block' : 'none'}; transition: none;"></div>
                   </div>
                   <div class="flask-body">
                     <div class="flask-liquid" style="height: ${Math.min((state.flaskLiquid / 160) * 100, 100)}%;"></div>
@@ -2155,7 +2159,7 @@
               <!-- Cuvette -->
               <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2); position: relative;">
                 ${isPouring ? `
-                  <div class="liquid-pour-stream active" style="left: 25px; top: -110px; height: 110px; background-color: ${state.naclState.solutionColor};"></div>
+                  <div class="liquid-pour-stream active" style="left: 25px; top: 0; height: 60px; background-color: ${state.naclState.solutionColor}; z-index: 5;"></div>
                 ` : ''}
                 <div class="cuvette" style="opacity: ${state.naclState.inCuvette ? 1 : 0.2}">
                   ${state.naclState.inCuvette ? `<div class="cuvette-liquid" style="background-color: var(--color-nacl-reaction);"></div>` : ''}
@@ -2211,7 +2215,7 @@
               <!-- Cuvette -->
               <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2); position: relative;">
                 ${isPouring ? `
-                  <div class="liquid-pour-stream active" style="left: 25px; top: -110px; height: 110px; background-color: ${state.nh3State.solutionColor};"></div>
+                  <div class="liquid-pour-stream active" style="left: 25px; top: 0; height: 60px; background-color: ${state.nh3State.solutionColor}; z-index: 5;"></div>
                 ` : ''}
                 <div class="cuvette" style="opacity: ${state.nh3State.inCuvette ? 1 : 0.2}">
                   ${state.nh3State.inCuvette ? `<div class="cuvette-liquid" style="background-color: rgba(59, 130, 246, 0.8);"></div>` : ''}
@@ -2267,7 +2271,7 @@
               <!-- Beaker -->
               <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
                 ${isPouringGlycine ? `
-                  <div class="liquid-pour-stream active" style="left: 60px; top: -110px; height: 110px; background-color: rgba(255,255,255,0.2);"></div>
+                  <div class="liquid-pour-stream active" style="left: 60px; top: 0; height: 60px; background-color: rgba(255,255,255,0.2); z-index: 5;"></div>
                 ` : ''}
                 <div class="beaker">
                   ${state.glycineState.cuAdded ? `
@@ -2296,7 +2300,7 @@
               <!-- Cuvette -->
               <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2); position: relative;">
                 ${isPouring ? `
-                  <div class="liquid-pour-stream active" style="left: 25px; top: -110px; height: 110px; background-color: ${state.glycineState.solutionColor};"></div>
+                  <div class="liquid-pour-stream active" style="left: 25px; top: 0; height: 60px; background-color: ${state.glycineState.solutionColor}; z-index: 5;"></div>
                 ` : ''}
                 <div class="cuvette" style="opacity: ${state.glycineState.inCuvette ? 1 : 0.2}">
                   ${state.glycineState.inCuvette ? `<div class="cuvette-liquid" style="background-color: rgba(167, 139, 250, 0.7);"></div>` : ''}
@@ -2561,7 +2565,7 @@
             if (flaskNeckLiquid) {
               if (val > 160) {
                 flaskNeckLiquid.style.display = 'block';
-                flaskNeckLiquid.style.top = `${100 - ((val - 160) / 90) * 100}%`;
+                flaskNeckLiquid.style.height = `${((val - 160) / 90) * 30}px`;
               } else {
                 flaskNeckLiquid.style.display = 'none';
               }

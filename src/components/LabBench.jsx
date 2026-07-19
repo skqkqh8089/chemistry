@@ -707,18 +707,15 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                     <span style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>비커</span>
                   </div>
 
-                  {isPouring && (
-                    <div className="liquid-pour-stream active" style={{ left: '200px', top: '70px', height: '120px', backgroundColor: beakerLiquid > 0 ? 'var(--color-cuso4)' : 'rgba(56, 189, 248, 0.4)' }}></div>
-                  )}
-
                   {/* Volumetric Flask */}
                   <div className="flask-container" style={{ position: 'relative' }}>
+                    {isPouring && (
+                      <div className="liquid-pour-stream active" style={{ left: '53px', top: '0', height: '60px', backgroundColor: beakerLiquid > 0 ? 'var(--color-cuso4)' : 'rgba(56, 189, 248, 0.4)', zIndex: 5 }}></div>
+                    )}
                     <div className="volumetric-flask">
                       <div className="flask-neck">
                         <div className="flask-neck-line"></div>
-                        {flaskLiquid > 160 && (
-                          <div className="flask-liquid" style={{ height: '100%', top: `${100 - ((flaskLiquid - 160) / 90) * 100}%`, width: '100%', left: 0 }}></div>
-                        )}
+                        <div id="flask-liquid-neck" className="flask-liquid" style={{ height: `${((flaskLiquid - 160) / 90) * 30}px`, width: '100%', left: 0, display: flaskLiquid > 160 ? 'block' : 'none', transition: 'none' }}></div>
                       </div>
                       <div className="flask-body">
                         <div className="flask-liquid" style={{ height: `${Math.min((flaskLiquid / 160) * 100, 100)}%` }}></div>
@@ -810,12 +807,11 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                   <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 'bold' }}>반응 비커</span>
                 </div>
 
-                {isPouring && (
-                  <div className="liquid-pour-stream active" style={{ left: '330px', top: '120px', height: '110px', backgroundColor: naclState.solutionColor }}></div>
-                )}
-
                 {/* Cuvette 1 */}
-                <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)' }}>
+                <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)', position: 'relative' }}>
+                  {isPouring && (
+                    <div className="liquid-pour-stream active" style={{ left: '25px', top: '0', height: '60px', backgroundColor: naclState.solutionColor, zIndex: 5 }}></div>
+                  )}
                   <div className="cuvette" style={{ opacity: naclState.inCuvette ? 1 : 0.2 }}>
                     {naclState.inCuvette && <div className="cuvette-liquid" style={{ backgroundColor: 'var(--color-nacl-reaction)' }}></div>}
                     <div className="cuvette-label">①</div>
@@ -866,12 +862,11 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                   <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 'bold' }}>반응 비커</span>
                 </div>
 
-                {isPouring && (
-                  <div className="liquid-pour-stream active" style={{ left: '175px', top: '120px', height: '110px', backgroundColor: nh3State.solutionColor }}></div>
-                )}
-
                 {/* Cuvette 2 */}
-                <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)' }}>
+                <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)', position: 'relative' }}>
+                  {isPouring && (
+                    <div className="liquid-pour-stream active" style={{ left: '25px', top: '0', height: '60px', backgroundColor: nh3State.solutionColor, zIndex: 5 }}></div>
+                  )}
                   <div className="cuvette" style={{ opacity: nh3State.inCuvette ? 1 : 0.2 }}>
                     {nh3State.inCuvette && <div className="cuvette-liquid" style={{ backgroundColor: 'rgba(59, 130, 246, 0.8)' }}></div>}
                     <div className="cuvette-label">②</div>
@@ -927,7 +922,7 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                 {/* Reaction Beaker */}
                 <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
                   {isPouringGlycine && (
-                    <div className="liquid-pour-stream active" style={{ left: '60px', top: '-110px', height: '110px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
+                    <div className="liquid-pour-stream active" style={{ left: '60px', top: '0', height: '60px', backgroundColor: 'rgba(255,255,255,0.2)', zIndex: 5 }}></div>
                   )}
                   <div className="beaker">
                     {glycineState.cuAdded && (
@@ -952,7 +947,7 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                 {/* Cuvette 3 */}
                 <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)', position: 'relative' }}>
                   {isPouring && (
-                    <div className="liquid-pour-stream active" style={{ left: '25px', top: '-110px', height: '110px', backgroundColor: glycineState.solutionColor }}></div>
+                    <div className="liquid-pour-stream active" style={{ left: '25px', top: '0', height: '60px', backgroundColor: glycineState.solutionColor, zIndex: 5 }}></div>
                   )}
                   <div className="cuvette" style={{ opacity: glycineState.inCuvette ? 1 : 0.2 }}>
                     {glycineState.inCuvette && <div className="cuvette-liquid" style={{ backgroundColor: 'rgba(167, 139, 250, 0.7)' }}></div>}

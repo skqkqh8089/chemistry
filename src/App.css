@@ -569,6 +569,7 @@
   right: 0;
   height: 1.5px;
   background: #ef4444;
+  z-index: 10;
 }
 
 .flask-body {
@@ -1348,39 +1349,42 @@
 /* 6. Pouring Beaker (Beaker -> Flask) Animation */
 .animate-pouring-beaker {
   animation: pourBeakerAnim 1.8s ease-in-out forwards;
+  transform-origin: top right;
 }
 
 @keyframes pourBeakerAnim {
   0% { transform: translate(0, 0) rotate(0deg); }
-  30% { transform: translate(100px, -50px) rotate(15deg); }
-  42% { transform: translate(100px, -50px) rotate(75deg); }
-  75% { transform: translate(100px, -50px) rotate(75deg); }
+  30% { transform: translate(88px, -25px) rotate(15deg); }
+  42% { transform: translate(88px, -25px) rotate(75deg); }
+  75% { transform: translate(88px, -25px) rotate(75deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 /* 7. Pouring Beaker to Cuvette (Beaker -> Cuvette) Animation */
 .animate-pouring-to-cuvette {
   animation: pourCuvetteAnim 1.8s ease-in-out forwards;
+  transform-origin: top right;
 }
 
 @keyframes pourCuvetteAnim {
   0% { transform: translate(0, 0) rotate(0deg); }
-  30% { transform: translate(105px, -60px) rotate(15deg); }
-  42% { transform: translate(105px, -60px) rotate(75deg); }
-  75% { transform: translate(105px, -60px) rotate(75deg); }
+  30% { transform: translate(80px, 40px) rotate(15deg); }
+  42% { transform: translate(80px, 40px) rotate(75deg); }
+  75% { transform: translate(80px, 40px) rotate(75deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 /* 8. Pouring Glycine Beaker into Reaction Beaker Animation */
 .animate-pouring-glycine-beaker {
   animation: pourGlycineAnim 1.8s ease-in-out forwards;
+  transform-origin: top left;
 }
 
 @keyframes pourGlycineAnim {
   0% { transform: translate(0, 0) rotate(0deg); }
-  30% { transform: translate(-75px, -50px) rotate(-15deg); }
-  42% { transform: translate(-75px, -50px) rotate(-75deg); }
-  75% { transform: translate(-75px, -50px) rotate(-75deg); }
+  30% { transform: translate(-80px, -40px) rotate(-15deg); }
+  42% { transform: translate(-80px, -40px) rotate(-75deg); }
+  75% { transform: translate(-80px, -40px) rotate(-75deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
