@@ -1,13 +1,3270 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>test</title>
+    <title>황산구리 리간드 교환 반응 가상 실험실</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      /* --- index.css 스타일 병합 --- */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+      :root {
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        line-height: 1.5;
+        font-weight: 400;
+
+        color-scheme: dark;
+        color: #e2e8f0;
+        background-color: #0b0f19;
+
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+
+        /* --- App.css의 CSS 변수 정의 --- */
+        --bg-primary: #0b0f19;
+        --bg-secondary: rgba(17, 24, 39, 0.7);
+        --glass-bg: rgba(30, 41, 59, 0.45);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-highlight: rgba(255, 255, 255, 0.04);
+        
+        --accent-blue: #38bdf8;
+        --accent-purple: #c084fc;
+        --accent-green: #34d399;
+        --accent-rose: #fb7185;
+        
+        /* Chemical Solution Colors */
+        --color-cuso4: rgba(56, 189, 248, 0.65); /* 하늘색 */
+        --color-nacl-reaction: rgba(163, 230, 53, 0.7); /* 황록색 */
+        --color-nh3-ppt: rgba(147, 197, 253, 0.9); /* 연푸른색 앙금 */
+        --color-nh3-deep: rgba(29, 78, 216, 0.85); /* 짙은 청람색 */
+        --color-glycine: rgba(139, 92, 246, 0.7); /* 보라색 */
+        --color-water: rgba(241, 245, 249, 0.2); /* 증류수 */
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        margin: 0;
+        display: flex;
+        min-height: 100vh;
+        background: radial-gradient(circle at 50% 50%, #111827 0%, #0b0f19 100%);
+        overflow-x: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Custom scrollbars */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(15, 23, 42, 0.3);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.3);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(148, 163, 184, 0.5);
+      }
+
+      /* --- App.css 스타일 병합 --- */
+      @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+        50% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.45); }
+      }
+
+      @keyframes dropFlow {
+        0% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+        30% { opacity: 1; }
+        100% { transform: translateY(80px) scale(0.5); opacity: 0; }
+      }
+
+      @keyframes scanLine {
+        0% { left: 0%; }
+        100% { left: 100%; }
+      }
+
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      /* Base App Layout */
+      .app-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        width: 100%;
+        color: #f1f5f9;
+      }
+
+      /* Header Component */
+      .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        background: rgba(11, 15, 25, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--glass-border);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .logo-icon {
+        color: var(--accent-blue);
+        filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-text h1 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #fff;
+        margin: 0;
+        background: linear-gradient(135deg, #fff 30%, #94a3b8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .logo-text p {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      /* Navigation & Status bar */
+      .nav-steps {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .step-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 9999px;
+        border: 1px solid var(--glass-border);
+        background: var(--glass-bg);
+        color: #94a3b8;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .step-btn.active {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(192, 132, 252, 0.15) 100%);
+        border-color: rgba(56, 189, 248, 0.4);
+        color: #fff;
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+      }
+
+      .step-btn.completed {
+        border-color: rgba(52, 211, 153, 0.3);
+        color: var(--accent-green);
+      }
+
+      .step-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-1px);
+      }
+
+      .step-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Main Workspace */
+      .app-content {
+        flex: 1;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      /* Cards & Glassmorphism */
+      .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        margin-bottom: 2rem;
+      }
+
+      .card-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.5rem;
+      }
+
+      .card-subtitle {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        margin-bottom: 1.5rem;
+      }
+
+      /* PHASE 0: SAFETY PAGE */
+      .safety-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 800px;
+        margin: 2rem auto;
+      }
+
+      .safety-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin: 2.5rem 0;
+        width: 100%;
+      }
+
+      .safety-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--glass-border);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .safety-item:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .safety-item.equipped {
+        border-color: var(--accent-green);
+        background: rgba(52, 211, 153, 0.05);
+        box-shadow: 0 0 20px rgba(52, 211, 153, 0.1);
+      }
+
+      .safety-icon-wrapper {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease;
+      }
+
+      .safety-item.equipped .safety-icon-wrapper {
+        transform: scale(1.1);
+      }
+
+      .safety-item h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0.5rem;
+      }
+
+      .safety-item p {
+        font-size: 0.8rem;
+        color: #64748b;
+        text-align: center;
+      }
+
+      .action-btn {
+        background: linear-gradient(135deg, var(--accent-blue) 0%, #0284c7 100%);
+        color: #fff;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+      }
+
+      .action-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(56, 189, 248, 0.45);
+      }
+
+      .action-btn:disabled {
+        background: rgba(148, 163, 184, 0.1);
+        color: #64748b;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      /* PHASE 1 & 2: LAB BENCH LAYOUT */
+      .lab-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2rem;
+      }
+
+      .guide-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .instruction-box {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1.25rem;
+      }
+
+      .instruction-step {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        transition: opacity 0.3s ease;
+      }
+
+      .step-num {
+        background: var(--accent-blue);
+        color: #000;
+        width: 24px;
+        height: 24px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+      }
+
+      .step-desc {
+        font-size: 0.9rem;
+        color: #cbd5e1;
+      }
+
+      .opacity-40 {
+        opacity: 0.4;
+      }
+
+      .bench-panel {
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.2) 0%, rgba(15, 23, 42, 0.4) 100%);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        min-height: 500px;
+        position: relative;
+        overflow: hidden;
+        justify-content: space-between;
+      }
+
+      .bench-display {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        padding-bottom: 4rem;
+        position: relative;
+        gap: 3rem;
+      }
+
+      /* CHEMICAL APPARATUSES */
+      .beaker-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+
+      .beaker {
+        width: 120px;
+        height: 140px;
+        border: 3px solid rgba(255, 255, 255, 0.55);
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      /* Beaker Pour Spout shape */
+      .beaker::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -4px;
+        right: -4px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 4px 4px 0 0;
+      }
+
+      .liquid {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--color-water);
+        transition: all 0.8s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .stirring-rod {
+        position: absolute;
+        width: 6px;
+        height: 160px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 4px;
+        top: -40px;
+        left: 55px;
+        z-index: 20;
+        box-shadow: 0 0 8px rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+      }
+
+      .stirring-rod.stirring {
+        animation: stirAnim 0.8s infinite linear;
+      }
+
+      @keyframes stirAnim {
+        0% { transform: rotate(0deg) translate(0, 0); }
+        25% { transform: rotate(3deg) translate(-10px, 5px); }
+        50% { transform: rotate(0deg) translate(0, 8px); }
+        75% { transform: rotate(-3deg) translate(10px, 5px); }
+        100% { transform: rotate(0deg) translate(0, 0); }
+      }
+
+      /* Precipitate Animation */
+      .precipitate {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 25px;
+        background: var(--color-nh3-ppt);
+        filter: blur(2px);
+        opacity: 0.8;
+        border-radius: 0 0 12px 12px;
+        transition: all 0.6s ease;
+      }
+
+      /* Scale (전자저울) */
+      .scale-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .lab-scale {
+        width: 160px;
+        height: 70px;
+        background: #334155;
+        border-radius: 8px;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 0.5rem;
+        position: relative;
+      }
+
+      .scale-plate {
+        width: 140px;
+        height: 8px;
+        background: #94a3b8;
+        border-radius: 4px;
+        margin: 0 auto;
+        box-shadow: inset 0 1px 3px rgba(255,255,255,0.2);
+      }
+
+      .scale-display {
+        background: #000;
+        border: 1px solid #1e293b;
+        border-radius: 4px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 0.5rem;
+        font-family: monospace;
+        font-size: 1.1rem;
+        color: #22c55e;
+        text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+      }
+
+      /* Dropper Tool */
+      .dropper-wrapper {
+        position: absolute;
+        z-index: 30;
+        transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .dropper-bulb {
+        width: 24px;
+        height: 30px;
+        background: #ef4444;
+        border-radius: 12px 12px 0 0;
+        cursor: pointer;
+      }
+
+      .dropper-tube {
+        width: 8px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.4);
+        border-left: 1px solid rgba(255, 255, 255, 0.5);
+        border-right: 1px solid rgba(255, 255, 255, 0.5);
+        position: relative;
+      }
+
+      .dropper-liquid {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--accent-blue);
+        transition: height 0.3s ease;
+      }
+
+      .dropper-tip {
+        width: 4px;
+        border-left: 2px solid transparent;
+        border-right: 2px solid transparent;
+        border-top: 15px solid rgba(255, 255, 255, 0.4);
+      }
+
+      .chemical-drop {
+        width: 6px;
+        height: 10px;
+        background: var(--accent-blue);
+        border-radius: 50%;
+        position: absolute;
+        top: 130px;
+        animation: dropFlow 0.6s linear forwards;
+      }
+
+      /* Flask Component */
+      .flask-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+
+      .volumetric-flask {
+        width: 110px;
+        height: 160px;
+        position: relative;
+      }
+
+      .flask-neck {
+        width: 20px;
+        height: 80px;
+        border-left: 2px solid rgba(255,255,255,0.6);
+        border-right: 2px solid rgba(255,255,255,0.6);
+        margin: 0 auto;
+        position: relative;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .flask-neck-line {
+        position: absolute;
+        bottom: 30px;
+        left: 0;
+        right: 0;
+        height: 1.5px;
+        background: #ef4444;
+      }
+
+      .flask-body {
+        width: 110px;
+        height: 90px;
+        border: 2px solid rgba(255,255,255,0.6);
+        border-top: none;
+        border-radius: 50% 50% 12px 12px;
+        margin-top: -12px;
+        position: relative;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .flask-liquid {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--color-cuso4);
+        transition: height 0.8s ease;
+      }
+
+      /* Control buttons below bench */
+      .control-btn {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: #f1f5f9;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .control-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .control-btn.primary {
+        background: var(--accent-blue);
+        color: #0b0f19;
+        font-weight: 600;
+        border: none;
+      }
+
+      .control-btn.primary:hover:not(:disabled) {
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+        background: #7dd3fc;
+      }
+
+      /* pH Indicator */
+      .ph-indicator-strip {
+        width: 20px;
+        height: 60px;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: #fde047; /* pH 4 - Yellowish */
+      }
+
+      /* PHASE 2: SPECTROSCOPY PAGE */
+      .spectroscopy-layout {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 2rem;
+      }
+
+      .device-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .cuvette-rack {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+        padding: 1.25rem;
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+      }
+
+      .cuvette-slot {
+        aspect-ratio: 1/2.2;
+        border: 1.5px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .cuvette-slot:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .cuvette {
+        width: 45px;
+        height: 100px;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 3px;
+        position: relative;
+        overflow: hidden;
+        background: rgba(255,255,255,0.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      }
+
+      .cuvette-liquid {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 75%;
+      }
+
+      .cuvette-label {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        background: rgba(0,0,0,0.6);
+        color: #fff;
+        font-size: 0.65rem;
+        padding: 1px 4px;
+        border-radius: 2px;
+        font-weight: bold;
+      }
+
+      .spectroscopy-device {
+        background: #1e293b;
+        border: 2px solid #334155;
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      }
+
+      .device-screen {
+        background: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        height: 150px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        font-family: 'Courier New', Courier, monospace;
+      }
+
+      .screen-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+      }
+
+      .screen-status {
+        color: #22c55e;
+        text-shadow: 0 0 5px rgba(34, 197, 94, 0.4);
+      }
+
+      .screen-value {
+        color: var(--accent-blue);
+        font-weight: bold;
+      }
+
+      .device-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+
+      .device-btn {
+        background: #334155;
+        border: 1px solid #475569;
+        color: #fff;
+        padding: 0.6rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .device-btn:hover:not(:disabled) {
+        background: #475569;
+      }
+
+      .device-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .device-btn.active {
+        background: var(--accent-blue);
+        color: #0b0f19;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+      }
+
+      /* UV Slot Inside Device */
+      .device-slot {
+        height: 120px;
+        border: 2px solid #475569;
+        background: #0f172a;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .uv-beam {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 12px;
+        background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.5), transparent);
+        animation: scanBeam 1.5s infinite ease-in-out;
+        pointer-events: none;
+      }
+
+      @keyframes scanBeam {
+        0%, 100% { transform: translateY(-30px); opacity: 0.2; }
+        50% { transform: translateY(30px); opacity: 0.8; }
+      }
+
+      /* CHART DISPLAY */
+      .chart-container {
+        display: flex;
+        flex-direction: column;
+        background: #070a13;
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        min-height: 480px;
+        position: relative;
+      }
+
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .chart-legend {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.8rem;
+        color: #94a3b8;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+      }
+
+      .svg-chart-wrapper {
+        position: relative;
+        flex: 1;
+        width: 100%;
+      }
+
+      .chart-grid-line {
+        stroke: rgba(148, 163, 184, 0.08);
+        stroke-dasharray: 4 4;
+      }
+
+      .chart-axis {
+        stroke: rgba(148, 163, 184, 0.3);
+        stroke-width: 1;
+      }
+
+      .chart-text {
+        fill: #64748b;
+        font-size: 11px;
+      }
+
+      .chart-line {
+        fill: none;
+        stroke-width: 3.5;
+        stroke-linecap: round;
+      }
+
+      /* PHASE 3: REPORT & INTERACTIVE QUIZ */
+      .report-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+      }
+
+      .report-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .report-section {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        padding-bottom: 2rem;
+      }
+
+      .report-section:last-child {
+        border-bottom: none;
+      }
+
+      .section-num-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 1rem;
+      }
+
+      .section-num {
+        background: var(--accent-purple);
+        color: #0b0f19;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.9rem;
+      }
+
+      .student-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .input-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #94a3b8;
+      }
+
+      .text-input {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 0.75rem;
+        color: #fff;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+      }
+
+      .text-input:focus {
+        outline: none;
+        border-color: var(--accent-purple);
+        box-shadow: 0 0 10px rgba(192, 132, 252, 0.15);
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+
+      .report-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .report-table th, .report-table td {
+        border: 1px solid var(--glass-border);
+        padding: 0.75rem 1rem;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      .report-table th {
+        background: rgba(15, 23, 42, 0.8);
+        font-weight: 600;
+        color: #cbd5e1;
+      }
+
+      .report-table td {
+        background: rgba(15, 23, 42, 0.3);
+      }
+
+      .table-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: #fff;
+        text-align: center;
+        font-size: 0.9rem;
+        outline: none;
+        font-weight: 600;
+      }
+
+      .question-card {
+        background: rgba(255,255,255,0.01);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .question-text {
+        font-size: 0.95rem;
+        color: #cbd5e1;
+        font-weight: 500;
+        margin-bottom: 0.75rem;
+        line-height: 1.6;
+      }
+
+      .textarea-input {
+        width: 100%;
+        min-height: 100px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 0.75rem;
+        color: #fff;
+        font-size: 0.9rem;
+        resize: vertical;
+        line-height: 1.5;
+        transition: all 0.2s ease;
+      }
+
+      .textarea-input:focus {
+        outline: none;
+        border-color: var(--accent-purple);
+      }
+
+      /* AI Feedback Side Card */
+      .feedback-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        position: sticky;
+        top: 100px;
+        height: fit-content;
+      }
+
+      .feedback-status {
+        padding: 1.5rem;
+        background: rgba(192, 132, 252, 0.05);
+        border: 1px dashed rgba(192, 132, 252, 0.3);
+        border-radius: 12px;
+        text-align: center;
+      }
+
+      .feedback-card {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%);
+        border: 1px solid var(--accent-purple);
+        box-shadow: 0 10px 25px rgba(192, 132, 252, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+
+      .feedback-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--accent-purple);
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+
+      .score-display {
+        display: flex;
+        align-items: baseline;
+        gap: 0.2rem;
+        margin-bottom: 1rem;
+      }
+
+      .score-num {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #fff;
+        font-family: 'Outfit', sans-serif;
+      }
+
+      .score-total {
+        font-size: 0.9rem;
+        color: #64748b;
+      }
+
+      .feedback-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+      }
+
+      .feedback-item {
+        font-size: 0.85rem;
+        line-height: 1.45;
+        padding: 0.75rem;
+        background: rgba(255,255,255,0.02);
+        border-radius: 6px;
+        border-left: 3px solid var(--accent-purple);
+      }
+
+      .feedback-keyword-match {
+        color: var(--accent-green);
+        font-weight: bold;
+      }
+
+      /* PRINT LAYOUT OVERRIDES */
+      @media print {
+        body {
+          background: #fff !important;
+          color: #000 !important;
+        }
+        
+        .app-header, .step-btn, .bench-controls, .device-buttons, .cuvette-rack, .action-btn, .control-btn, .feedback-sidebar {
+          display: none !important;
+        }
+        
+        #root, .app-container, .app-content {
+          background: #fff !important;
+          color: #000 !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          width: 100% !important;
+        }
+        
+        .glass-card {
+          background: #fff !important;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          color: #000 !important;
+        }
+        
+        .card-title {
+          color: #000 !important;
+          font-size: 1.8rem !important;
+          border-bottom: 2px solid #000;
+          padding-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+          color: #475569 !important;
+        }
+        
+        .report-grid {
+          grid-template-columns: 1fr !important;
+          gap: 0 !important;
+        }
+        
+        .report-table th {
+          background: #f1f5f9 !important;
+          color: #000 !important;
+          border: 1px solid #cbd5e1 !important;
+        }
+        
+        .report-table td, .report-table th, .report-table {
+          border: 1px solid #cbd5e1 !important;
+          color: #000 !important;
+        }
+        
+        .table-input, .text-input, .textarea-input {
+          color: #000 !important;
+          background: transparent !important;
+          border: none !important;
+          border-bottom: 1px solid #94a3b8 !important;
+          border-radius: 0 !important;
+          padding: 0.25rem 0 !important;
+        }
+        
+        .question-card {
+          border: 1px solid #e2e8f0 !important;
+          background: transparent !important;
+          page-break-inside: avoid;
+        }
+        
+        .question-text {
+          color: #000 !important;
+        }
+        
+        .chart-container {
+          background: #fff !important;
+          border: 1px solid #cbd5e1 !important;
+          color: #000 !important;
+          page-break-inside: avoid;
+        }
+        
+        .chart-text {
+          fill: #000 !important;
+        }
+        
+        .chart-grid-line {
+          stroke: rgba(0, 0, 0, 0.1) !important;
+        }
+      }
+      
+      .shimmer {
+        animation: pulseGlow 1.5s infinite;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <div id="root">
+      <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+          <div class="logo-section">
+            <div class="logo-icon">
+              <i data-lucide="activity" style="width: 32px; height: 32px;"></i>
+            </div>
+            <div class="logo-text">
+              <h1>황산구리 리간드 교환 반응</h1>
+              <p>휘문고등학교 화학 동아리 가상 실험실</p>
+            </div>
+          </div>
+
+          <!-- Steps navigation -->
+          <nav class="nav-steps" id="header-nav"></nav>
+        </header>
+
+        <!-- Main Workspace Content -->
+        <main class="app-content" id="main-content"></main>
+      </div>
+    </div>
+
+    <!-- UI Interaction logic (Vanilla JS) -->
+    <script>
+      // 1. Initial State
+      const state = {
+        currentStep: 0, // 0: Safety, 1: Lab Bench, 2: Spectroscopy, 3: Report
+        safety: {
+          goggles: false,
+          mask: false,
+          gloves: false,
+        },
+        labProgress: {
+          cuso4Prepared: false,
+          naclFinished: false,
+          nh3Finished: false,
+          glycineFinished: false,
+        },
+        cuvettesInRack: {
+          blank: true,
+          c1: false,
+          c2: false,
+          c3: false,
+        },
+        scannedData: {
+          blank: false,
+          c1: false,
+          c2: false,
+          c3: false,
+        },
+        activeTab: 0, // Bench Sub-experiments: 0: CuSO4, 1: NaCl, 2: NH3, 3: Glycine
+        subStep: 0, // Indicator inside activeTab
+        
+        // Tab 0 states
+        scaleState: {
+          power: false,
+          tare: false,
+          weight: 0.00
+        },
+        beakerLiquid: 0,
+        flaskLiquid: 0,
+        rinseCount: 0,
+        shaken: false,
+
+        // Tab 1 states
+        naclState: {
+          cuAdded: false,
+          naclDrops: 0,
+          solutionColor: 'var(--color-cuso4)',
+          inCuvette: false
+        },
+
+        // Tab 2 states
+        nh3State: {
+          cuAdded: false,
+          nh3Drops: 0,
+          hasPrecipitate: false,
+          isComplexFormed: false,
+          solutionColor: 'var(--color-cuso4)',
+          diluted: false,
+          inCuvette: false
+        },
+
+        // Tab 3 states
+        glycineState: {
+          cuAdded: false,
+          phAdjusted: false,
+          phTestColor: '#fde047',
+          phTestResult: 'pH 4 (산성)',
+          glyPrepared: false,
+          mixed: false,
+          diluted: false,
+          solutionColor: 'var(--color-cuso4)',
+          inCuvette: false
+        },
+
+        // Spectroscopy states
+        loadedCuvette: 'none', // 'none', 'blank', 'c1', 'c2', 'c3'
+        baselineDone: false,
+        isScanning: false,
+        scanProgress: 0,
+        activeScanTarget: null,
+        hoverWavelength: null,
+        mousePos: { x: 0, y: 0 },
+
+        // Report states
+        studentInfo: {
+          name: '',
+          studentId: ''
+        },
+        lambdaInputs: {
+          blank: '없음 (증류수 바탕 시료)',
+          c1: '',
+          c2: '',
+          c3: ''
+        },
+        answers: {
+          q1: '',
+          q2: '',
+          q3: '',
+          q4: '',
+          q5: ''
+        },
+        submitted: false,
+        evaluation: null
+      };
+
+      // 2. Spectrometer Curve Data
+      const getAbsorbance = (target, wl) => {
+        switch (target) {
+          case 'blank':
+            return 0.02 + Math.sin(wl / 100) * 0.005; // nearly zero
+          case 'c1': // NaCl [CuCl4]2- (yellow-green, peaks around 740nm)
+            const peak1 = 740;
+            const width1 = 120;
+            const maxAbs1 = 1.35;
+            return maxAbs1 * Math.exp(-Math.pow(wl - peak1, 2) / (2 * Math.pow(width1, 2))) + 0.15;
+          case 'c2': // NH3 [Cu(NH3)4(H2O)2]2+ (deep blue, peaks around 610nm)
+            const peak2 = 610;
+            const width2 = 60;
+            const maxAbs2 = 1.62;
+            return maxAbs2 * Math.exp(-Math.pow(wl - peak2, 2) / (2 * Math.pow(width2, 2))) + 0.05;
+          case 'c3': // Glycine [Cu(Gly)2] (violet, peaks around 630nm)
+            const peak3 = 630;
+            const width3 = 80;
+            const maxAbs3 = 1.18;
+            return maxAbs3 * Math.exp(-Math.pow(wl - peak3, 2) / (2 * Math.pow(width3, 2))) + 0.08;
+          default:
+            return 0;
+        }
+      };
+
+      // 3. UI Update Engine
+      function updateUI() {
+        renderNavigation();
+        renderMainContent();
+        lucide.createIcons();
+      }
+
+      // Step Configuration
+      const stepsList = [
+        { id: 0, label: "안전 장비 착용", icon: "shield-check" },
+        { id: 1, label: "실험 및 시약 제조", icon: "pipette" },
+        { id: 2, label: "UV-Vis 분광 분석", icon: "activity" },
+        { id: 3, label: "보고서 및 AI 피드백", icon: "file-spreadsheet" }
+      ];
+
+      // Navigation bar renderer
+      function renderNavigation() {
+        const isSafetyAllEquipped = state.safety.goggles && state.safety.mask && state.safety.gloves;
+        const nav = document.getElementById('header-nav');
+        nav.innerHTML = '';
+        
+        stepsList.forEach(step => {
+          const isActive = state.currentStep === step.id;
+          const isCompleted = isSafetyAllEquipped && (
+            (step.id === 0) ||
+            (step.id === 1 && state.labProgress.naclFinished && state.labProgress.nh3Finished && state.labProgress.glycineFinished) ||
+            (step.id === 2 && state.scannedData.c1 && state.scannedData.c2 && state.scannedData.c3)
+          );
+          
+          const btn = document.createElement('button');
+          btn.className = `step-btn ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
+          btn.disabled = step.id > 0 && !isSafetyAllEquipped;
+          btn.innerHTML = `<i data-lucide="${step.icon}" style="width: 18px; height: 18px;"></i><span>${step.label}</span>`;
+          btn.onclick = () => {
+            if (!isSafetyAllEquipped && step.id > 0) {
+              alert("실험을 시작하기 전에 보안경, 마스크, 실험용 장갑을 모두 착용해야 합니다!");
+              return;
+            }
+            state.currentStep = step.id;
+            updateUI();
+          };
+          nav.appendChild(btn);
+        });
+      }
+
+      // Main content routing renderer
+      function renderMainContent() {
+        const main = document.getElementById('main-content');
+        main.innerHTML = '';
+
+        if (state.currentStep === 0) {
+          renderPhase0(main);
+        } else if (state.currentStep === 1) {
+          renderPhase1(main);
+        } else if (state.currentStep === 2) {
+          renderPhase2(main);
+        } else if (state.currentStep === 3) {
+          renderPhase3(main);
+        }
+      }
+
+      // --- PHASE 0 Renderer: Safety Gear ---
+      function renderPhase0(container) {
+        const isSafetyAllEquipped = state.safety.goggles && state.safety.mask && state.safety.gloves;
+        
+        const div = document.createElement('div');
+        div.className = 'glass-card safety-layout';
+        div.innerHTML = `
+          <h2 class="card-title">안전한 실험을 위한 준비</h2>
+          <p class="card-subtitle">실험에 참여하기 전, 안전 수칙을 준수하기 위해 개인 보호구(PPE)를 반드시 착용해 주세요.</p>
+          
+          <div class="safety-grid">
+            <div class="safety-item ${state.safety.goggles ? 'equipped' : ''}" id="safety-goggles">
+              <div class="safety-icon-wrapper">🥽</div>
+              <h3>보안경 (Goggles)</h3>
+              <p>화학 물질이 눈에 튀는 것을 방지합니다.</p>
+              <span style="font-size: 0.8rem; margin-top: 8px; color: ${state.safety.goggles ? 'var(--accent-green)' : '#ef4444'}; font-weight: bold;">
+                ${state.safety.goggles ? '착용 완료' : '착용 필요'}
+              </span>
+            </div>
+
+            <div class="safety-item ${state.safety.mask ? 'equipped' : ''}" id="safety-mask">
+              <div class="safety-icon-wrapper">😷</div>
+              <h3>실험용 마스크 (Mask)</h3>
+              <p>진한 암모니아수 증기 등 유해 가스 흡입을 예방합니다.</p>
+              <span style="font-size: 0.8rem; margin-top: 8px; color: ${state.safety.mask ? 'var(--accent-green)' : '#ef4444'}; font-weight: bold;">
+                ${state.safety.mask ? '착용 완료' : '착용 필요'}
+              </span>
+            </div>
+
+            <div class="safety-item ${state.safety.gloves ? 'equipped' : ''}" id="safety-gloves">
+              <div class="safety-icon-wrapper">🧤</div>
+              <h3>니트릴 장갑 (Gloves)</h3>
+              <p>강산/강염기 및 화학 반응물로부터 손을 보호합니다.</p>
+              <span style="font-size: 0.8rem; margin-top: 8px; color: ${state.safety.gloves ? 'var(--accent-green)' : '#ef4444'}; font-weight: bold;">
+                ${state.safety.gloves ? '착용 완료' : '착용 필요'}
+              </span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%;">
+            ${!isSafetyAllEquipped ? `
+              <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--accent-rose); fontSize: 0.85rem;">
+                <i data-lucide="alert-triangle" style="width:16px; height:16px;"></i>
+                <span>모든 안전 장비를 클릭하여 착용해야 실험실에 입장할 수 있습니다.</span>
+              </div>
+            ` : ''}
+            <button class="action-btn" id="enter-lab-btn" ${!isSafetyAllEquipped ? 'disabled' : ''}>
+              <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+              <span>가상 실험실 입장</span>
+            </button>
+          </div>
+        `;
+        
+        container.appendChild(div);
+
+        // Events
+        div.querySelector('#safety-goggles').onclick = () => {
+          state.safety.goggles = !state.safety.goggles;
+          updateUI();
+        };
+        div.querySelector('#safety-mask').onclick = () => {
+          state.safety.mask = !state.safety.mask;
+          updateUI();
+        };
+        div.querySelector('#safety-gloves').onclick = () => {
+          state.safety.gloves = !state.safety.gloves;
+          updateUI();
+        };
+        div.querySelector('#enter-lab-btn').onclick = () => {
+          if (isSafetyAllEquipped) {
+            state.currentStep = 1;
+            updateUI();
+          }
+        };
+      }
+
+      // --- PHASE 1 Renderer: Lab Bench ---
+      let localLoading = false;
+      let localDropAnimation = false;
+      let localDropColor = 'var(--accent-blue)';
+      let localStirring = false;
+
+      function renderPhase1(container) {
+        const layout = document.createElement('div');
+        layout.className = 'lab-layout';
+        
+        // 1) Guide Panel (Left side)
+        const guidePanel = document.createElement('div');
+        guidePanel.className = 'guide-panel';
+        
+        const stepSelectCard = document.createElement('div');
+        stepSelectCard.className = 'glass-card';
+        stepSelectCard.style.padding = '1.25rem';
+        stepSelectCard.style.marginBottom = '0';
+        stepSelectCard.innerHTML = `
+          <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 0.75rem;">실험 단계 선택</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button id="tab-btn-0" class="step-btn ${state.activeTab === 0 ? 'active' : ''} ${state.labProgress.cuso4Prepared ? 'completed' : ''}" style="width: 100%; justify-content: flex-start; border-radius: 8px;">
+              <span>0.1M CuSO₄ 수용액 제조</span>
+            </button>
+            <button id="tab-btn-1" ${!state.labProgress.cuso4Prepared ? 'disabled' : ''} class="step-btn ${state.activeTab === 1 ? 'active' : ''} ${state.labProgress.naclFinished ? 'completed' : ''}" style="width: 100%; justify-content: flex-start; border-radius: 8px;">
+              <span>실험 ①: 포화 NaCl 반응</span>
+            </button>
+            <button id="tab-btn-2" ${!state.labProgress.cuso4Prepared ? 'disabled' : ''} class="step-btn ${state.activeTab === 2 ? 'active' : ''} ${state.labProgress.nh3Finished ? 'completed' : ''}" style="width: 100%; justify-content: flex-start; border-radius: 8px;">
+              <span>실험 ②: 진한 암모니아 반응</span>
+            </button>
+            <button id="tab-btn-3" ${!state.labProgress.cuso4Prepared ? 'disabled' : ''} class="step-btn ${state.activeTab === 3 ? 'active' : ''} ${state.labProgress.glycineFinished ? 'completed' : ''}" style="width: 100%; justify-content: flex-start; border-radius: 8px;">
+              <span>실험 ③: 글라이신 반응</span>
+            </button>
+          </div>
+        `;
+        guidePanel.appendChild(stepSelectCard);
+
+        const instructionBox = document.createElement('div');
+        instructionBox.className = 'instruction-box';
+        
+        let instructionsHtml = '';
+        if (state.activeTab === 0) {
+          instructionsHtml = `
+            <h3 style="font-size: 1rem; color: #fff; margin-bottom: 0.75rem; font-weight: 600;">가이드 및 지시사항</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div class="instruction-step ${state.subStep >= 0 ? '' : 'opacity-40'}">
+                <div class="step-num">1</div>
+                <div class="step-desc">전자저울의 전원을 켜고, 약포지를 올린 뒤 <b>Tare(영점)</b>을 조절하세요.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 1 ? '' : 'opacity-40'}">
+                <div class="step-num">2</div>
+                <div class="step-desc">약수저를 이용하여 CuSO₄·5H₂O 결정을 정확히 <b>6.24 g</b> 계량하세요.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 2 ? '' : 'opacity-40'}">
+                <div class="step-num">3</div>
+                <div class="step-desc">계량한 고체를 50mL 비커에 넣고 증류수를 넣어 <b>유리막대</b>로 완전히 녹이세요.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 4 ? '' : 'opacity-40'}">
+                <div class="step-num">4</div>
+                <div class="step-desc">녹인 용액을 <b>250mL 부피 플라스크</b>로 모두 깔끔하게 옮기세요.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 5 ? '' : 'opacity-40'}">
+                <div class="step-num">5</div>
+                <div class="step-desc">비커를 씻기병으로 <b>2회 헹구어</b> 남은 황산구리 이온까지 완전히 플라스크에 넣습니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 6 ? '' : 'opacity-40'}">
+                <div class="step-num">6</div>
+                <div class="step-desc">플라스크의 2/3 지점까지 증류수를 넣고 <b>마개를 닫아 가볍게 흔들어</b> 섞으세요.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 8 ? '' : 'opacity-40'}">
+                <div class="step-num">7</div>
+                <div class="step-desc">슬라이더를 조작하여 눈높이를 맞추고 정확히 <b>250 mL 빨간 눈금선(표선)</b>까지 눈금을 맞추세요.</div>
+              </div>
+            </div>
+          `;
+        } else if (state.activeTab === 1) {
+          instructionsHtml = `
+            <h3 style="font-size: 1rem; color: #fff; margin-bottom: 0.75rem; font-weight: 600;">가이드 및 지시사항</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div class="instruction-step ${state.subStep >= 0 ? '' : 'opacity-40'}">
+                <div class="step-num">1</div>
+                <div class="step-desc">제조해 둔 0.1M CuSO₄ 용액 <b>3mL를 피펫</b>으로 취해 50mL 비커로 옮깁니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 1 ? '' : 'opacity-40'}">
+                <div class="step-num">2</div>
+                <div class="step-desc">스포이트를 눌러 <b>포화 NaCl 수용액을 1mL씩 총 3회</b> 가해 줍니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 3 ? '' : 'opacity-40'}">
+                <div class="step-num">3</div>
+                <div class="step-desc">용액의 색깔 변화(하늘색 → 녹색 → 황록색)를 확인하고 <b>큐벳 ①</b>에 나누어 담습니다.</div>
+              </div>
+            </div>
+          `;
+        } else if (state.activeTab === 2) {
+          instructionsHtml = `
+            <h3 style="font-size: 1rem; color: #fff; margin-bottom: 0.75rem; font-weight: 600;">가이드 및 지시사항</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div class="instruction-step ${state.subStep >= 0 ? '' : 'opacity-40'}">
+                <div class="step-num">1</div>
+                <div class="step-desc">0.1M CuSO₄ 용액 <b>3mL</b>를 비커에 이송합니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 1 ? '' : 'opacity-40'}">
+                <div class="step-num">2</div>
+                <div class="step-desc"><b>진한 암모니아수</b>를 한 방울 가하여 <b>연푸른색 수산화구리(Cu(OH)₂) 앙금</b> 생성을 관찰합니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 2 ? '' : 'opacity-40'}">
+                <div class="step-num">3</div>
+                <div class="step-desc">암모니아수를 과량으로 계속 추가하여 앙금이 완전히 녹아 <b>짙은 청람색 착이온</b>이 될 때까지 넣어줍니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 3 ? '' : 'opacity-40'}">
+                <div class="step-num">4</div>
+                <div class="step-desc">제조된 짙은 청람색 용액을 피펫으로 <b>1mL 취해 증류수 9mL와 섞어</b> 10배 묽힙니다. (비어-람베르트 법칙 적용)</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 4 ? '' : 'opacity-40'}">
+                <div class="step-num">5</div>
+                <div class="step-desc">묽힌 수용액을 <b>큐벳 ②</b>에 나누어 담아 분광 분석을 준비합니다.</div>
+              </div>
+            </div>
+          `;
+        } else if (state.activeTab === 3) {
+          instructionsHtml = `
+            <h3 style="font-size: 1rem; color: #fff; margin-bottom: 0.75rem; font-weight: 600;">가이드 및 지시사항</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div class="instruction-step ${state.subStep >= 0 ? '' : 'opacity-40'}">
+                <div class="step-num">1</div>
+                <div class="step-desc">0.1M CuSO₄ 용액 <b>3mL</b>를 비커에 이송합니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 1 ? '' : 'opacity-40'}">
+                <div class="step-num">2</div>
+                <div class="step-desc">0.1M NaOH를 몇 방울 떨어뜨려 <b>pH 8~9(약염기성)</b>로 맞춘 후 pH 시험지로 검증하세요.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 2 ? '' : 'opacity-40'}">
+                <div class="step-num">3</div>
+                <div class="step-desc">다른 비커에 <b>글라이신 가루 0.15g</b>을 약숟가락으로 측정해 증류수 5mL에 넣어 녹입니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 3 ? '' : 'opacity-40'}">
+                <div class="step-num">4</div>
+                <div class="step-desc">두 비커의 수용액을 혼합하여 **보라색/파란색([Cu(Gly)₂])**으로 색이 변하는지 관찰합니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 4 ? '' : 'opacity-40'}">
+                <div class="step-num">5</div>
+                <div class="step-desc">제조된 보라색 수용액 <b>1mL를 취해 증류수 9mL</b>와 섞어 10배 묽힙니다.</div>
+              </div>
+              <div class="instruction-step ${state.subStep >= 5 ? '' : 'opacity-40'}">
+                <div class="step-num">6</div>
+                <div class="step-desc">묽힌 수용액을 <b>큐벳 ③</b>에 담습니다.</div>
+              </div>
+            </div>
+          `;
+        }
+
+        instructionBox.innerHTML = instructionsHtml;
+        guidePanel.appendChild(instructionBox);
+        layout.appendChild(guidePanel);
+
+        // 2) Bench Display Panel (Right side)
+        const benchPanel = document.createElement('div');
+        benchPanel.className = 'bench-panel';
+        
+        const benchHeader = document.createElement('div');
+        benchHeader.style.padding = '1rem';
+        benchHeader.style.borderBottom = '1px solid var(--glass-border)';
+        benchHeader.style.display = 'flex';
+        benchHeader.style.justifyContent = 'space-between';
+        benchHeader.style.alignItems = 'center';
+        benchHeader.innerHTML = `
+          <span style="font-weight: 600; color: var(--accent-blue);">실험 벤치 (Virtual Lab Bench)</span>
+          ${localLoading ? '<span class="shimmer" style="font-size: 0.8rem; color: #94a3b8;">진행 중...</span>' : ''}
+        `;
+        benchPanel.appendChild(benchHeader);
+
+        const benchDisplay = document.createElement('div');
+        benchDisplay.className = 'bench-display';
+
+        // Drop animation overlay
+        if (localDropAnimation) {
+          const dropper = document.createElement('div');
+          dropper.className = 'dropper-wrapper';
+          dropper.style.top = '100px';
+          dropper.style.left = 'calc(50% + 20px)';
+          dropper.innerHTML = `
+            <div class="dropper-bulb"></div>
+            <div class="dropper-tube">
+              <div class="dropper-liquid" style="height: 30%"></div>
+            </div>
+            <div class="dropper-tip"></div>
+            <div class="chemical-drop" style="background-color: ${localDropColor}"></div>
+          `;
+          benchDisplay.appendChild(dropper);
+        }
+
+        // Render based on Active Tab
+        if (state.activeTab === 0) {
+          // --- TAB 0 CuSO4 PREP ---
+          if (state.subStep <= 1) {
+            const scaleWrapper = document.createElement('div');
+            scaleWrapper.className = 'scale-container';
+            scaleWrapper.innerHTML = `
+              <div class="lab-scale">
+                <div class="scale-plate"></div>
+                <div class="scale-display" id="scale-val">
+                  ${state.scaleState.power ? `${state.scaleState.weight.toFixed(2)} g` : 'OFF'}
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                <button id="btn-scale-power" class="control-btn">전원</button>
+                <button id="btn-scale-tare" class="control-btn" ${!state.scaleState.power ? 'disabled' : ''}>영점(Tare)</button>
+                <button id="btn-scale-add" class="control-btn" ${(!state.scaleState.power || !state.scaleState.tare || state.scaleState.weight >= 6.24) ? 'disabled' : ''}>
+                  CuSO₄·5H₂O 계량 (+1.25g)
+                </button>
+              </div>
+              ${state.scaleState.weight === 6.24 && state.subStep === 1 ? `
+                <button id="btn-scale-complete" class="control-btn primary" style="margin-top: 0.5rem;">
+                  계량 완료
+                </button>
+              ` : ''}
+            `;
+            benchDisplay.appendChild(scaleWrapper);
+          } else if (state.subStep >= 2 && state.subStep <= 3) {
+            const beakerWrapper = document.createElement('div');
+            beakerWrapper.className = 'beaker-container';
+            beakerWrapper.innerHTML = `
+              ${localStirring ? '<div class="stirring-rod stirring"></div>' : ''}
+              ${!localStirring && state.subStep === 3 ? '<div class="stirring-rod"></div>' : ''}
+              <div class="beaker">
+                <div class="liquid" style="height: ${state.beakerLiquid}%; background-color: ${state.beakerLiquid > 0 ? 'var(--color-cuso4)' : 'transparent'};">
+                  ${state.beakerLiquid > 0 ? '<span style="font-size: 0.65rem; color: #fff; z-index: 10;">50mL</span>' : ''}
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                ${state.subStep === 2 ? `
+                  <button id="btn-add-water" class="control-btn primary" ${localLoading ? 'disabled' : ''}>증류수 50mL 추가</button>
+                ` : ''}
+                ${state.subStep === 3 ? `
+                  <button id="btn-stir" class="control-btn primary" ${localStirring ? 'disabled' : ''}>유리막대로 젓기</button>
+                ` : ''}
+              </div>
+            `;
+            benchDisplay.appendChild(beakerWrapper);
+          } else if (state.subStep >= 4 && state.subStep <= 8) {
+            const transferWrapper = document.createElement('div');
+            transferWrapper.style.display = 'flex';
+            transferWrapper.style.gap = '2rem';
+            transferWrapper.style.alignItems = 'flex-end';
+            transferWrapper.innerHTML = `
+              <!-- Beaker -->
+              <div class="beaker-container" style="opacity: ${state.subStep >= 5 ? 0.6 : 1}">
+                <div class="beaker">
+                  <div class="liquid" style="height: ${state.beakerLiquid}%; background-color: ${state.beakerLiquid > 0 ? 'rgba(56, 189, 248, 0.4)' : 'transparent'};"></div>
+                </div>
+                <span style="font-size: 0.75rem; margin-top: 0.5rem;">비커</span>
+              </div>
+
+              <!-- Volumetric Flask -->
+              <div class="flask-container">
+                <div class="volumetric-flask">
+                  <div class="flask-neck">
+                    <div class="flask-neck-line"></div>
+                    ${state.flaskLiquid > 160 ? `
+                      <div class="flask-liquid" style="height: 100%; top: ${100 - ((state.flaskLiquid - 160) / 90) * 100}%; width: 100%; left: 0;"></div>
+                    ` : ''}
+                  </div>
+                  <div class="flask-body">
+                    <div class="flask-liquid" style="height: ${Math.min((state.flaskLiquid / 160) * 100, 100)}%;"></div>
+                  </div>
+                </div>
+                <span style="font-size: 0.75rem; margin-top: 0.5rem;">부피 플라스크 (${state.flaskLiquid}mL)</span>
+              </div>
+            `;
+            benchDisplay.appendChild(transferWrapper);
+
+            // Sub-step fine controls
+            if (state.subStep === 8) {
+              const sliderDiv = document.createElement('div');
+              sliderDiv.style.position = 'absolute';
+              sliderDiv.style.bottom = '110px';
+              sliderDiv.style.left = '50%';
+              sliderDiv.style.transform = 'translateX(-50%)';
+              sliderDiv.style.width = '220px';
+              sliderDiv.style.background = 'rgba(15,23,42,0.9)';
+              sliderDiv.style.padding = '1rem';
+              sliderDiv.style.borderRadius = '8px';
+              sliderDiv.style.border = '1px solid var(--glass-border)';
+              sliderDiv.style.zIndex = '40';
+              sliderDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+                  <span>증류수 미세 조절 (눈높이 정렬)</span>
+                  <span style="color: var(--accent-rose); font-weight: bold;">${state.flaskLiquid} / 250 mL</span>
+                </div>
+                <input id="flask-range" type="range" min="240" max="250" value="${state.flaskLiquid}" style="width: 100%;" />
+                <p style="font-size: 0.65rem; color: #64748b; margin-top: 0.25rem; text-align: center;">
+                  슬라이더를 조작하여 눈금선(250mL)에 정확히 맞추세요.
+                </p>
+              `;
+              benchDisplay.appendChild(sliderDiv);
+            }
+
+            const stepBtnWrapper = document.createElement('div');
+            stepBtnWrapper.style.display = 'flex';
+            stepBtnWrapper.style.gap = '0.5rem';
+            stepBtnWrapper.style.marginTop = '1rem';
+            stepBtnWrapper.style.position = 'absolute';
+            stepBtnWrapper.style.bottom = '20px';
+            
+            if (state.subStep === 4) {
+              stepBtnWrapper.innerHTML = `<button id="btn-flask-transfer" class="control-btn primary" ${localLoading ? 'disabled' : ''}>플라스크로 이송</button>`;
+            } else if (state.subStep === 5) {
+              stepBtnWrapper.innerHTML = `<button id="btn-flask-rinse" class="control-btn primary" ${localLoading ? 'disabled' : ''}>비커 씻기병 헹굼액 이송 (${state.rinseCount}/2회)</button>`;
+            } else if (state.subStep === 6) {
+              stepBtnWrapper.innerHTML = `<button id="btn-flask-water-23" class="control-btn primary" ${localLoading ? 'disabled' : ''}>증류수 2/3 채우기</button>`;
+            } else if (state.subStep === 7) {
+              stepBtnWrapper.innerHTML = `<button id="btn-flask-shake" class="control-btn primary" ${localLoading ? 'disabled' : ''}>마개 닫고 흔들어 섞기</button>`;
+            }
+            benchDisplay.appendChild(stepBtnWrapper);
+          } else if (state.subStep === 9) {
+            const completeCard = document.createElement('div');
+            completeCard.style.textAlign = 'center';
+            completeCard.style.padding = '1.5rem';
+            completeCard.style.background = 'rgba(52, 211, 153, 0.1)';
+            completeCard.style.border = '1px solid var(--accent-green)';
+            completeCard.style.borderRadius = '8px';
+            completeCard.style.maxWidth = '400px';
+            completeCard.style.margin = 'auto';
+            completeCard.innerHTML = `
+              <h4 style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">0.1M CuSO₄ 표준 용액 제조 완료!</h4>
+              <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;">성공적으로 표준 용액을 제조하였습니다. 왼쪽 실험 단계 탭에서 실험 ①을 이어서 진행하세요.</p>
+            `;
+            benchDisplay.appendChild(completeCard);
+          }
+        } else if (state.activeTab === 1) {
+          // --- TAB 1 NaCl Rx ---
+          const tab1Wrapper = document.createElement('div');
+          tab1Wrapper.style.display = 'flex';
+          tab1Wrapper.style.flexDirection = 'column';
+          tab1Wrapper.style.alignItems = 'center';
+          tab1Wrapper.style.gap = '2rem';
+          tab1Wrapper.style.width = '100%';
+          tab1Wrapper.innerHTML = `
+            <div style="display: flex; gap: 3rem; align-items: flex-end; justify-content: center; width: 100%;">
+              <!-- CuSO4 Flask -->
+              <div class="flask-container" style="opacity: 0.5;">
+                <div class="volumetric-flask">
+                  <div class="flask-neck"></div>
+                  <div class="flask-body">
+                    <div class="flask-liquid" style="height: 100%;"></div>
+                  </div>
+                </div>
+                <span style="font-size: 0.7rem; margin-top: 4px;">0.1M CuSO₄ 수용액</span>
+              </div>
+
+              <!-- Beaker -->
+              <div class="beaker-container">
+                <div class="beaker">
+                  ${state.naclState.cuAdded ? `
+                    <div class="liquid" style="height: 35%; background-color: ${state.naclState.solutionColor};">
+                      <span style="font-size: 0.65rem; color: #fff; z-index: 10;">${3 + state.naclState.naclDrops} mL</span>
+                    </div>
+                  ` : ''}
+                </div>
+                <span style="font-size: 0.75rem; margin-top: 0.5rem; font-weight: bold;">반응 비커</span>
+              </div>
+
+              <!-- Cuvette -->
+              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2);">
+                <div class="cuvette" style="opacity: ${state.naclState.inCuvette ? 1 : 0.2}">
+                  ${state.naclState.inCuvette ? `<div class="cuvette-liquid" style="background-color: var(--color-nacl-reaction);"></div>` : ''}
+                  <div class="cuvette-label">①</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display: flex; gap: 0.75rem;">
+              ${!state.naclState.cuAdded ? `
+                <button id="btn-nacl-add-cu" class="control-btn primary">피펫으로 0.1M CuSO₄ 수용액 3mL 분주</button>
+              ` : ''}
+              ${state.naclState.cuAdded && state.naclState.naclDrops < 3 ? `
+                <button id="btn-nacl-add-drop" class="control-btn primary" ${localDropAnimation ? 'disabled' : ''}>
+                  포화 NaCl 수용액 1mL 첨가 (${state.naclState.naclDrops}/3mL)
+                </button>
+              ` : ''}
+              ${state.naclState.naclDrops >= 3 && !state.naclState.inCuvette ? `
+                <button id="btn-nacl-to-cuvette" class="control-btn primary" ${localLoading ? 'disabled' : ''}>반응한 용액을 큐벳 ①에 이송</button>
+              ` : ''}
+              ${state.naclState.inCuvette ? `
+                <div style="padding: 0.5rem 1rem; background: rgba(52, 211, 153, 0.1); border: 1px solid var(--accent-green); border-radius: 8px; color: var(--accent-green); font-weight: bold; font-size: 0.85rem;">
+                  실험 ① 완료: 큐벳 ① 준비됨 (황록색 착이온 [CuCl₄]²⁻ 생성)
+                </div>
+              ` : ''}
+            </div>
+          `;
+          benchDisplay.appendChild(tab1Wrapper);
+        } else if (state.activeTab === 2) {
+          // --- TAB 2 NH3 Rx ---
+          const tab2Wrapper = document.createElement('div');
+          tab2Wrapper.style.display = 'flex';
+          tab2Wrapper.style.flexDirection = 'column';
+          tab2Wrapper.style.alignItems = 'center';
+          tab2Wrapper.style.gap = '2rem';
+          tab2Wrapper.style.width = '100%';
+          tab2Wrapper.innerHTML = `
+            <div style="display: flex; gap: 2rem; align-items: flex-end; justify-content: center; width: 100%;">
+              <!-- Beaker -->
+              <div class="beaker-container">
+                <div class="beaker">
+                  ${state.nh3State.cuAdded ? `
+                    <div class="liquid" style="height: 35%; background-color: ${state.nh3State.solutionColor};">
+                      <span style="font-size: 0.65rem; color: #fff; z-index: 10;">${state.nh3State.diluted ? '10 mL (1/10 묽힘)' : '3 mL'}</span>
+                    </div>
+                  ` : ''}
+                  ${state.nh3State.hasPrecipitate ? '<div class="precipitate"></div>' : ''}
+                </div>
+                <span style="font-size: 0.75rem; margin-top: 0.5rem; font-weight: bold;">반응 비커</span>
+              </div>
+
+              <!-- Cuvette -->
+              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2);">
+                <div class="cuvette" style="opacity: ${state.nh3State.inCuvette ? 1 : 0.2}">
+                  ${state.nh3State.inCuvette ? `<div class="cuvette-liquid" style="background-color: rgba(59, 130, 246, 0.8);"></div>` : ''}
+                  <div class="cuvette-label">②</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display: flex; gap: 0.75rem;">
+              ${!state.nh3State.cuAdded ? `
+                <button id="btn-nh3-add-cu" class="control-btn primary">피펫으로 0.1M CuSO₄ 수용액 3mL 분주</button>
+              ` : ''}
+              ${state.nh3State.cuAdded && state.nh3State.nh3Drops < 4 ? `
+                <button id="btn-nh3-add-drop" class="control-btn primary" ${localDropAnimation ? 'disabled' : ''}>
+                  진한 암모니아수 첨가 (${state.nh3State.nh3Drops === 0 ? '소량 - 1방울' : `${state.nh3State.nh3Drops}/4방울`})
+                </button>
+              ` : ''}
+              ${state.nh3State.isComplexFormed && !state.nh3State.diluted ? `
+                <button id="btn-nh3-dilute" class="control-btn primary" ${localLoading ? 'disabled' : ''}>
+                  용액 1mL를 피펫으로 취해 증류수 9mL로 10배 희석
+                </button>
+              ` : ''}
+              ${state.nh3State.diluted && !state.nh3State.inCuvette ? `
+                <button id="btn-nh3-to-cuvette" class="control-btn primary" ${localLoading ? 'disabled' : ''}>희석된 용액을 큐벳 ②에 이송</button>
+              ` : ''}
+              ${state.nh3State.inCuvette ? `
+                <div style="padding: 0.5rem 1rem; background: rgba(52, 211, 153, 0.1); border: 1px solid var(--accent-green); border-radius: 8px; color: var(--accent-green); font-weight: bold; font-size: 0.85rem;">
+                  실험 ② 완료: 큐벳 ② 준비됨 (짙은 청람색 착이온 [Cu(NH₃)₄(H₂O)₂]²⁺ 생성)
+                </div>
+              ` : ''}
+            </div>
+          `;
+          benchDisplay.appendChild(tab2Wrapper);
+        } else if (state.activeTab === 3) {
+          // --- TAB 3 Glycine Rx ---
+          const tab3Wrapper = document.createElement('div');
+          tab3Wrapper.style.display = 'flex';
+          tab3Wrapper.style.flexDirection = 'column';
+          tab3Wrapper.style.alignItems = 'center';
+          tab3Wrapper.style.gap = '1.5rem';
+          tab3Wrapper.style.width = '100%';
+          tab3Wrapper.innerHTML = `
+            <div style="display: flex; gap: 1.5rem; align-items: flex-end; justify-content: center; width: 100%;">
+              <!-- pH Test Strip -->
+              ${state.glycineState.cuAdded ? `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                  <div class="ph-indicator-strip" style="background-color: ${state.glycineState.phTestColor};"></div>
+                  <span style="font-size: 0.65rem; color: #94a3b8;">${state.glycineState.phTestResult}</span>
+                </div>
+              ` : ''}
+
+              <!-- Beaker -->
+              <div class="beaker-container">
+                <div class="beaker">
+                  ${state.glycineState.cuAdded ? `
+                    <div class="liquid" style="height: 35%; background-color: ${state.glycineState.solutionColor};">
+                      <span style="font-size: 0.65rem; color: #fff; z-index: 10;">
+                        ${state.glycineState.mixed ? (state.glycineState.diluted ? '10 mL (1/10 묽힘)' : '8 mL') : '3 mL'}
+                      </span>
+                    </div>
+                  ` : ''}
+                </div>
+                <span style="font-size: 0.75rem; margin-top: 0.5rem; font-weight: bold;">반응 비커</span>
+              </div>
+
+              <!-- Cuvette -->
+              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2);">
+                <div class="cuvette" style="opacity: ${state.glycineState.inCuvette ? 1 : 0.2}">
+                  ${state.glycineState.inCuvette ? `<div class="cuvette-liquid" style="background-color: rgba(167, 139, 250, 0.7);"></div>` : ''}
+                  <div class="cuvette-label">③</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display: flex; gap: 0.75rem;">
+              ${!state.glycineState.cuAdded ? `
+                <button id="btn-gly-add-cu" class="control-btn primary">피펫으로 0.1M CuSO₄ 수용액 3mL 분주</button>
+              ` : ''}
+              ${state.glycineState.cuAdded && !state.glycineState.phAdjusted ? `
+                <button id="btn-gly-add-naoh" class="control-btn primary" ${localDropAnimation ? 'disabled' : ''}>0.1M NaOH 3방울 가해 pH 조절</button>
+              ` : ''}
+              ${state.glycineState.phAdjusted && !state.glycineState.glyPrepared ? `
+                <button id="btn-gly-prep" class="control-btn primary" ${localLoading ? 'disabled' : ''}>글라이신 가루 0.15g + D.W. 5mL 용해</button>
+              ` : ''}
+              ${state.glycineState.glyPrepared && !state.glycineState.mixed ? `
+                <button id="btn-gly-mix" class="control-btn primary" ${localLoading ? 'disabled' : ''}>두 비커의 수용액 혼합</button>
+              ` : ''}
+              ${state.glycineState.mixed && !state.glycineState.diluted ? `
+                <button id="btn-gly-dilute" class="control-btn primary" ${localLoading ? 'disabled' : ''}>용액 1mL를 증류수 9mL와 섞어 10배 희석</button>
+              ` : ''}
+              ${state.glycineState.diluted && !state.glycineState.inCuvette ? `
+                <button id="btn-gly-to-cuvette" class="control-btn primary" ${localLoading ? 'disabled' : ''}>희석된 용액을 큐벳 ③에 이송</button>
+              ` : ''}
+              ${state.glycineState.inCuvette ? `
+                <div style="padding: 0.5rem 1rem; background: rgba(52, 211, 153, 0.1); border: 1px solid var(--accent-green); border-radius: 8px; color: var(--accent-green); font-weight: bold; font-size: 0.85rem;">
+                  실험 ③ 완료: 큐벳 ③ 준비됨 (보라색 착이온 [Cu(Gly)₂] 생성)
+                </div>
+              ` : ''}
+            </div>
+          `;
+          benchDisplay.appendChild(tab3Wrapper);
+        }
+
+        benchPanel.appendChild(benchDisplay);
+
+        // 3) Bottom Navigation bar inside Bench Panel
+        const isAllReactionsFinished = state.labProgress.naclFinished && state.labProgress.nh3Finished && state.labProgress.glycineFinished;
+        
+        const benchControls = document.createElement('div');
+        benchControls.className = 'bench-controls';
+        benchControls.innerHTML = `
+          <div>
+            ${isAllReactionsFinished ? `
+              <span style="color: var(--accent-green); font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                <i data-lucide="check-circle" style="width:16px; height:16px;"></i> 모든 화학 반응과 큐벳 준비가 완료되었습니다!
+              </span>
+            ` : `
+              <span style="color: #94a3b8; font-size: 0.8rem;">모든 실험(①~③)을 순서대로 진행하여 큐벳 ①, ②, ③을 확보해 주세요.</span>
+            `}
+          </div>
+          <button id="btn-to-spectroscopy" class="control-btn primary" ${!isAllReactionsFinished ? 'disabled' : ''}>
+            <span>분광 분석실(UV-Vis)로 이동</span>
+            <i data-lucide="chevron-right" style="width:14px; height:14px;"></i>
+          </button>
+        `;
+        benchPanel.appendChild(benchControls);
+        layout.appendChild(benchPanel);
+        container.appendChild(layout);
+
+        // --- Event Attachments for Tab Buttons ---
+        for (let i = 0; i <= 3; i++) {
+          const btn = layout.querySelector(`#tab-btn-${i}`);
+          if (btn) {
+            btn.onclick = () => {
+              state.activeTab = i;
+              state.subStep = 0;
+              updateUI();
+            };
+          }
+        }
+
+        // --- Action Events ---
+        // Tab 0 CuSO4 events
+        const scalePower = layout.querySelector('#btn-scale-power');
+        if (scalePower) {
+          scalePower.onclick = () => {
+            state.scaleState.power = !state.scaleState.power;
+            state.scaleState.weight = state.scaleState.power ? 0.00 : 0.00;
+            updateUI();
+          };
+        }
+        const scaleTare = layout.querySelector('#btn-scale-tare');
+        if (scaleTare) {
+          scaleTare.onclick = () => {
+            state.scaleState.tare = true;
+            state.scaleState.weight = 0.00;
+            if (state.subStep === 0) state.subStep = 1;
+            updateUI();
+          };
+        }
+        const scaleAdd = layout.querySelector('#btn-scale-add');
+        if (scaleAdd) {
+          scaleAdd.onclick = () => {
+            const curWeight = state.scaleState.weight;
+            state.scaleState.weight = Math.min(curWeight + 1.25, 6.24);
+            updateUI();
+          };
+        }
+        const scaleComplete = layout.querySelector('#btn-scale-complete');
+        if (scaleComplete) {
+          scaleComplete.onclick = () => {
+            if (state.scaleState.weight === 6.24) {
+              state.subStep = 2;
+              updateUI();
+            } else {
+              alert("황산구리 5수화물의 질량을 정확히 6.24g으로 맞춰주세요!");
+            }
+          };
+        }
+        const addWater = layout.querySelector('#btn-add-water');
+        if (addWater) {
+          addWater.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.beakerLiquid = 50;
+              localLoading = false;
+              state.subStep = 3;
+              updateUI();
+            }, 1000);
+          };
+        }
+        const stirBtn = layout.querySelector('#btn-stir');
+        if (stirBtn) {
+          stirBtn.onclick = () => {
+            localStirring = true;
+            updateUI();
+            setTimeout(() => {
+              localStirring = false;
+              state.subStep = 4;
+              updateUI();
+            }, 1500);
+          };
+        }
+        const flaskTransfer = layout.querySelector('#btn-flask-transfer');
+        if (flaskTransfer) {
+          flaskTransfer.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.flaskLiquid = state.beakerLiquid;
+              state.beakerLiquid = 0;
+              localLoading = false;
+              state.subStep = 5;
+              updateUI();
+            }, 1200);
+          };
+        }
+        const flaskRinse = layout.querySelector('#btn-flask-rinse');
+        if (flaskRinse) {
+          flaskRinse.onclick = () => {
+            if (state.rinseCount >= 2) return;
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.rinseCount += 1;
+              state.flaskLiquid = Math.min(state.flaskLiquid + 15, 250);
+              localLoading = false;
+              if (state.rinseCount === 2) {
+                state.subStep = 6;
+              }
+              updateUI();
+            }, 800);
+          };
+        }
+        const flaskWater23 = layout.querySelector('#btn-flask-water-23');
+        if (flaskWater23) {
+          flaskWater23.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.flaskLiquid = 160;
+              localLoading = false;
+              state.subStep = 7;
+              updateUI();
+            }, 1000);
+          };
+        }
+        const flaskShake = layout.querySelector('#btn-flask-shake');
+        if (flaskShake) {
+          flaskShake.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.shaken = true;
+              localLoading = false;
+              state.subStep = 8;
+              updateUI();
+            }, 1200);
+          };
+        }
+        const flaskRange = layout.querySelector('#flask-range');
+        if (flaskRange) {
+          flaskRange.oninput = (e) => {
+            const val = parseInt(e.target.value);
+            state.flaskLiquid = val;
+            if (val === 250) {
+              state.labProgress.cuso4Prepared = true;
+              state.subStep = 9;
+            }
+            updateUI();
+          };
+        }
+
+        // Tab 1 NaCl Rx events
+        const naclAddCu = layout.querySelector('#btn-nacl-add-cu');
+        if (naclAddCu) {
+          naclAddCu.onclick = () => {
+            state.naclState.cuAdded = true;
+            state.subStep = 1;
+            updateUI();
+          };
+        }
+        const naclAddDrop = layout.querySelector('#btn-nacl-add-drop');
+        if (naclAddDrop) {
+          naclAddDrop.onclick = () => {
+            localDropColor = 'rgba(255,255,255,0.7)';
+            localDropAnimation = true;
+            updateUI();
+            setTimeout(() => {
+              localDropAnimation = false;
+              state.naclState.naclDrops += 1;
+              if (state.naclState.naclDrops === 1) {
+                state.naclState.solutionColor = 'rgba(74, 222, 128, 0.7)';
+              } else if (state.naclState.naclDrops >= 2) {
+                state.naclState.solutionColor = 'var(--color-nacl-reaction)';
+              }
+              if (state.naclState.naclDrops === 3) {
+                state.subStep = 3;
+              }
+              updateUI();
+            }, 600);
+          };
+        }
+        const naclToCuvette = layout.querySelector('#btn-nacl-to-cuvette');
+        if (naclToCuvette) {
+          naclToCuvette.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.naclState.inCuvette = true;
+              state.cuvettesInRack.c1 = true;
+              state.labProgress.naclFinished = true;
+              localLoading = false;
+              updateUI();
+            }, 1000);
+          };
+        }
+
+        // Tab 2 NH3 Rx events
+        const nh3AddCu = layout.querySelector('#btn-nh3-add-cu');
+        if (nh3AddCu) {
+          nh3AddCu.onclick = () => {
+            state.nh3State.cuAdded = true;
+            state.subStep = 1;
+            updateUI();
+          };
+        }
+        const nh3AddDrop = layout.querySelector('#btn-nh3-add-drop');
+        if (nh3AddDrop) {
+          nh3AddDrop.onclick = () => {
+            localDropColor = 'rgba(147, 197, 253, 0.4)';
+            localDropAnimation = true;
+            updateUI();
+            setTimeout(() => {
+              localDropAnimation = false;
+              state.nh3State.nh3Drops += 1;
+              if (state.nh3State.nh3Drops === 1) {
+                state.nh3State.hasPrecipitate = true;
+                state.nh3State.solutionColor = 'rgba(56, 189, 248, 0.5)';
+              } else if (state.nh3State.nh3Drops >= 3) {
+                state.nh3State.hasPrecipitate = false;
+                state.nh3State.isComplexFormed = true;
+                state.nh3State.solutionColor = 'var(--color-nh3-deep)';
+              }
+              if (state.nh3State.nh3Drops === 4) {
+                state.subStep = 3;
+              }
+              updateUI();
+            }, 600);
+          };
+        }
+        const nh3Dilute = layout.querySelector('#btn-nh3-dilute');
+        if (nh3Dilute) {
+          nh3Dilute.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.nh3State.diluted = true;
+              state.nh3State.solutionColor = 'rgba(59, 130, 246, 0.8)';
+              localLoading = false;
+              state.subStep = 4;
+              updateUI();
+            }, 1000);
+          };
+        }
+        const nh3ToCuvette = layout.querySelector('#btn-nh3-to-cuvette');
+        if (nh3ToCuvette) {
+          nh3ToCuvette.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.nh3State.inCuvette = true;
+              state.cuvettesInRack.c2 = true;
+              state.labProgress.nh3Finished = true;
+              localLoading = false;
+              updateUI();
+            }, 1000);
+          };
+        }
+
+        // Tab 3 Glycine Rx events
+        const glyAddCu = layout.querySelector('#btn-gly-add-cu');
+        if (glyAddCu) {
+          glyAddCu.onclick = () => {
+            state.glycineState.cuAdded = true;
+            state.subStep = 1;
+            updateUI();
+          };
+        }
+        const glyAddNaOH = layout.querySelector('#btn-gly-add-naoh');
+        if (glyAddNaOH) {
+          glyAddNaOH.onclick = () => {
+            localDropColor = 'rgba(255, 255, 255, 0.3)';
+            localDropAnimation = true;
+            updateUI();
+            setTimeout(() => {
+              localDropAnimation = false;
+              state.glycineState.phAdjusted = true;
+              state.glycineState.phTestColor = '#22c55e';
+              state.glycineState.phTestResult = 'pH 8.5 (약염기성)';
+              state.subStep = 2;
+              updateUI();
+            }, 600);
+          };
+        }
+        const glyPrep = layout.querySelector('#btn-gly-prep');
+        if (glyPrep) {
+          glyPrep.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.glycineState.glyPrepared = true;
+              localLoading = false;
+              state.subStep = 3;
+              updateUI();
+            }, 1000);
+          };
+        }
+        const glyMix = layout.querySelector('#btn-gly-mix');
+        if (glyMix) {
+          glyMix.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.glycineState.mixed = true;
+              state.glycineState.solutionColor = 'var(--color-glycine)';
+              localLoading = false;
+              state.subStep = 4;
+              updateUI();
+            }, 1200);
+          };
+        }
+        const glyDilute = layout.querySelector('#btn-gly-dilute');
+        if (glyDilute) {
+          glyDilute.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.glycineState.diluted = true;
+              state.glycineState.solutionColor = 'rgba(167, 139, 250, 0.7)';
+              localLoading = false;
+              state.subStep = 5;
+              updateUI();
+            }, 1000);
+          };
+        }
+        const glyToCuvette = layout.querySelector('#btn-gly-to-cuvette');
+        if (glyToCuvette) {
+          glyToCuvette.onclick = () => {
+            localLoading = true;
+            updateUI();
+            setTimeout(() => {
+              state.glycineState.inCuvette = true;
+              state.cuvettesInRack.c3 = true;
+              state.labProgress.glycineFinished = true;
+              localLoading = false;
+              updateUI();
+            }, 1000);
+          };
+        }
+
+        // Forward transition
+        const toSpecBtn = layout.querySelector('#btn-to-spectroscopy');
+        if (toSpecBtn) {
+          toSpecBtn.onclick = () => {
+            if (isAllReactionsFinished) {
+              state.currentStep = 2;
+              updateUI();
+            }
+          };
+        }
+      }
+
+      // --- PHASE 2 Renderer: Spectroscopy ---
+      function renderPhase2(container) {
+        const layout = document.createElement('div');
+        layout.className = 'spectroscopy-layout';
+        
+        // 1) Left Panel: Device Controls & Rack
+        const leftPanel = document.createElement('div');
+        leftPanel.className = 'device-panel';
+        
+        // Cuvette colors definition
+        const cuvetteColors = {
+          blank: 'rgba(241, 245, 249, 0.4)',
+          c1: 'var(--color-nacl-reaction)',
+          c2: 'rgba(59, 130, 246, 0.8)',
+          c3: 'rgba(167, 139, 250, 0.7)',
+        };
+
+        const labels = {
+          blank: 'B (바탕 시료)',
+          c1: '①번 수용액 (포화 NaCl 반응)',
+          c2: '②번 수용액 (진한 암모니아 반응)',
+          c3: '③번 수용액 (글라이신 반응)',
+        };
+
+        const rackCard = document.createElement('div');
+        rackCard.className = 'glass-card';
+        rackCard.style.padding = '1.25rem';
+        rackCard.style.marginBottom = '0';
+        rackCard.innerHTML = `
+          <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 0.25rem;">큐벳 보관대 (Cuvette Rack)</h3>
+          <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">큐벳을 클릭하면 분광기에 자동으로 장착됩니다.</p>
+          <div class="cuvette-rack">
+            <!-- Blank -->
+            <div id="rack-slot-blank" class="cuvette-slot" style="${state.loadedCuvette === 'blank' ? 'border-color: var(--accent-blue);' : ''}">
+              ${state.loadedCuvette !== 'blank' ? `
+                <div class="cuvette">
+                  <div class="cuvette-liquid" style="background-color: ${cuvetteColors.blank};"></div>
+                  <div class="cuvette-label">B</div>
+                </div>
+              ` : '<span style="font-size: 0.65rem; color: #64748b;">장착됨</span>'}
+            </div>
+            
+            <!-- Cuvette 1 (NaCl) -->
+            <div id="rack-slot-c1" class="cuvette-slot" style="${!state.cuvettesInRack.c1 ? 'opacity: 0.4; cursor: not-allowed;' : ''} ${state.loadedCuvette === 'c1' ? 'border-color: var(--accent-blue);' : ''}">
+              ${state.cuvettesInRack.c1 && state.loadedCuvette !== 'c1' ? `
+                <div class="cuvette">
+                  <div class="cuvette-liquid" style="background-color: ${cuvetteColors.c1};"></div>
+                  <div class="cuvette-label">①</div>
+                </div>
+              ` : `<span style="font-size: 0.65rem; color: #64748b; text-align: center;">${state.loadedCuvette === 'c1' ? '장착됨' : '미완성'}</span>`}
+            </div>
+
+            <!-- Cuvette 2 (NH3) -->
+            <div id="rack-slot-c2" class="cuvette-slot" style="${!state.cuvettesInRack.c2 ? 'opacity: 0.4; cursor: not-allowed;' : ''} ${state.loadedCuvette === 'c2' ? 'border-color: var(--accent-blue);' : ''}">
+              ${state.cuvettesInRack.c2 && state.loadedCuvette !== 'c2' ? `
+                <div class="cuvette">
+                  <div class="cuvette-liquid" style="background-color: ${cuvetteColors.c2};"></div>
+                  <div class="cuvette-label">②</div>
+                </div>
+              ` : `<span style="font-size: 0.65rem; color: #64748b; text-align: center;">${state.loadedCuvette === 'c2' ? '장착됨' : '미완성'}</span>`}
+            </div>
+
+            <!-- Cuvette 3 (Glycine) -->
+            <div id="rack-slot-c3" class="cuvette-slot" style="${!state.cuvettesInRack.c3 ? 'opacity: 0.4; cursor: not-allowed;' : ''} ${state.loadedCuvette === 'c3' ? 'border-color: var(--accent-blue);' : ''}">
+              ${state.cuvettesInRack.c3 && state.loadedCuvette !== 'c3' ? `
+                <div class="cuvette">
+                  <div class="cuvette-liquid" style="background-color: ${cuvetteColors.c3};"></div>
+                  <div class="cuvette-label">③</div>
+                </div>
+              ` : `<span style="font-size: 0.65rem; color: #64748b; text-align: center;">${state.loadedCuvette === 'c3' ? '장착됨' : '미완성'}</span>`}
+            </div>
+          </div>
+        `;
+        leftPanel.appendChild(rackCard);
+
+        const specDevice = document.createElement('div');
+        specDevice.className = 'spectroscopy-device';
+        specDevice.innerHTML = `
+          <div class="device-screen">
+            <div class="screen-row">
+              <span>프로젝트 명:</span>
+              <span class="screen-value">휘문화학부_리간드실험</span>
+            </div>
+            <div class="screen-row">
+              <span>측정 모드:</span>
+              <span class="screen-value">Spectrum</span>
+            </div>
+            <div class="screen-row">
+              <span>파장 범위:</span>
+              <span class="screen-value">400 - 900 nm</span>
+            </div>
+            <div class="screen-row">
+              <span>장치 상태:</span>
+              <span class="screen-status" id="device-status-txt">
+                ${state.isScanning ? '스캔 중 (Scanning...)' : state.loadedCuvette === 'none' ? '측정 대기 (Idle)' : `${labels[state.loadedCuvette]} 장착됨`}
+              </span>
+            </div>
+          </div>
+
+          <!-- Device Slot -->
+          <div class="device-slot" id="spectro-slot">
+            ${state.isScanning ? '<div class="uv-beam"></div>' : ''}
+            ${state.loadedCuvette !== 'none' ? `
+              <div class="cuvette" style="cursor: ${state.isScanning ? 'not-allowed' : 'pointer'};">
+                <div class="cuvette-liquid" style="background-color: ${cuvetteColors[state.loadedCuvette]};"></div>
+                <div class="cuvette-label">${state.loadedCuvette === 'blank' ? 'B' : state.loadedCuvette === 'c1' ? '①' : state.loadedCuvette === 'c2' ? '②' : '③'}</div>
+              </div>
+            ` : '<span style="font-size: 0.75rem; color: #475569;">큐벳을 슬롯에 넣어주세요</span>'}
+          </div>
+
+          <!-- Controls -->
+          <div class="device-buttons">
+            <button id="btn-scan" class="device-btn active" ${state.isScanning || state.loadedCuvette === 'none' ? 'disabled' : ''}>
+              <i data-lucide="play" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i>
+              <span style="vertical-align: middle;">${state.loadedCuvette === 'blank' ? 'Baseline 바탕값 보정' : '흡광 스펙트럼 측정'}</span>
+            </button>
+            <button id="btn-unload" class="device-btn" ${state.isScanning || state.loadedCuvette === 'none' ? 'disabled' : ''}>
+              큐벳 슬롯에서 분리
+            </button>
+          </div>
+        `;
+        leftPanel.appendChild(specDevice);
+        layout.appendChild(leftPanel);
+
+        // 2) Right Panel: Interactive SVG Chart
+        const lineColors = {
+          blank: '#cbd5e1',
+          c1: '#a3e635',
+          c2: '#3b82f6',
+          c3: '#a78bfa',
+        };
+
+        const chartContainer = document.createElement('div');
+        chartContainer.className = 'chart-container';
+        
+        let legendHtml = '';
+        if (state.baselineDone) legendHtml += `<div class="legend-item"><div class="legend-color" style="background-color: ${lineColors.blank};"></div><span>B</span></div>`;
+        if (state.scannedData.c1) legendHtml += `<div class="legend-item"><div class="legend-color" style="background-color: ${lineColors.c1};"></div><span>① (NaCl)</span></div>`;
+        if (state.scannedData.c2) legendHtml += `<div class="legend-item"><div class="legend-color" style="background-color: ${lineColors.c2};"></div><span>② (NH₃)</span></div>`;
+        if (state.scannedData.c3) legendHtml += `<div class="legend-item"><div class="legend-color" style="background-color: ${lineColors.c3};"></div><span>③ (Glycine)</span></div>`;
+
+        chartContainer.innerHTML = `
+          <div class="chart-header">
+            <h3 class="card-title" style="font-size: 1.2rem; margin-bottom: 0; display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="activity" style="color: var(--accent-purple); width:20px; height:20px;"></i>
+              <span>흡광도 스펙트럼 (UV-Vis Spectrum)</span>
+            </h3>
+            <div class="chart-legend" id="chart-legend-box">${legendHtml}</div>
+          </div>
+
+          <div class="svg-chart-wrapper" id="chart-svg-wrapper">
+            <svg id="spectrum-svg" width="100%" height="320" viewBox="0 0 600 320" style="overflow: visible;">
+              <!-- Grid Lines (Y Axis) -->
+              <line x1="0" y1="320" x2="600" y2="320" class="chart-grid-line" />
+              <text x="-32" y="324" class="chart-text">0.0</text>
+              
+              <line x1="0" y1="240" x2="600" y2="240" class="chart-grid-line" />
+              <text x="-32" y="244" class="chart-text">0.5</text>
+              
+              <line x1="0" y1="160" x2="600" y2="160" class="chart-grid-line" />
+              <text x="-32" y="164" class="chart-text">1.0</text>
+              
+              <line x1="0" y1="80" x2="600" y2="80" class="chart-grid-line" />
+              <text x="-32" y="84" class="chart-text">1.5</text>
+              
+              <line x1="0" y1="0" x2="600" y2="0" class="chart-grid-line" />
+              <text x="-32" y="4" class="chart-text">2.0</text>
+
+              <!-- Grid Lines (X Axis) -->
+              <line x1="0" y1="0" x2="0" y2="320" class="chart-grid-line" />
+              <text x="-12" y="340" class="chart-text">400</text>
+
+              <line x1="120" y1="0" x2="120" y2="320" class="chart-grid-line" />
+              <text x="108" y="340" class="chart-text">500</text>
+
+              <line x1="240" y1="0" x2="240" y2="320" class="chart-grid-line" />
+              <text x="228" y="340" class="chart-text">600</text>
+
+              <line x1="360" y1="0" x2="360" y2="320" class="chart-grid-line" />
+              <text x="348" y="340" class="chart-text">700</text>
+
+              <line x1="480" y1="0" x2="480" y2="320" class="chart-grid-line" />
+              <text x="468" y="340" class="chart-text">800</text>
+
+              <line x1="600" y1="0" x2="600" y2="320" class="chart-grid-line" />
+              <text x="588" y="340" class="chart-text">900</text>
+
+              <!-- Base Axes lines -->
+              <line x1="0" y1="320" x2="600" y2="320" class="chart-axis" />
+              <line x1="0" y1="0" x2="0" y2="320" class="chart-axis" />
+
+              <!-- Curves -->
+              <path id="path-blank" fill="none" stroke="${lineColors.blank}" stroke-width="2" stroke-dasharray="4 4" d="" />
+              <path id="path-c1" fill="none" stroke="${lineColors.c1}" stroke-width="3.5" filter="drop-shadow(0 0 6px rgba(163, 230, 53, 0.4))" d="" />
+              <path id="path-c2" fill="none" stroke="${lineColors.c2}" stroke-width="3.5" filter="drop-shadow(0 0 6px rgba(59, 130, 246, 0.4))" d="" />
+              <path id="path-c3" fill="none" stroke="${lineColors.c3}" stroke-width="3.5" filter="drop-shadow(0 0 6px rgba(167, 139, 250, 0.4))" d="" />
+
+              <!-- Laser scan line -->
+              <line id="laser-scan-line" x1="0" y1="0" x2="0" y2="320" stroke="var(--accent-rose)" stroke-width="2.5" filter="drop-shadow(0 0 8px #fb7185)" style="display: none;" />
+              <!-- Hover tracking line -->
+              <line id="hover-track-line" x1="0" y1="0" x2="0" y2="320" stroke="rgba(255,255,255,0.2)" stroke-width="1" style="display: none;" />
+            </svg>
+            <div id="chart-tooltip" style="position: absolute; display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--glass-border); border-radius: 6px; padding: 0.6rem 0.8rem; z-index: 40; font-size: 0.75rem; font-family: monospace; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); color: #fff;"></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.85rem;">
+            <span>Y축: 흡광도 (Absorbance)</span>
+            <span>X축: 파장 (Wavelength, nm)</span>
+          </div>
+        `;
+        layout.appendChild(chartContainer);
+
+        // 3) Bottom Navigation
+        const isAllScanned = state.scannedData.c1 && state.scannedData.c2 && state.scannedData.c3;
+        
+        const bottomNav = document.createElement('div');
+        bottomNav.className = 'glass-card';
+        bottomNav.style.gridColumn = 'span 2';
+        bottomNav.style.display = 'flex';
+        bottomNav.style.justifyContent = 'space-between';
+        bottomNav.style.alignItems = 'center';
+        bottomNav.style.padding = '1rem 2rem';
+        bottomNav.style.marginBottom = '0';
+        bottomNav.innerHTML = `
+          <button id="btn-back-bench" class="control-btn" ${state.isScanning ? 'disabled' : ''}>
+            <i data-lucide="chevron-left" style="width:14px; height:14px;"></i>
+            <span>실험대로 돌아가기</span>
+          </button>
+          
+          ${!isAllScanned ? `
+            <div style="display: flex; align-items: center; gap: 0.5rem; color: #94a3b8; font-size: 0.85rem;">
+              <i data-lucide="info" style="color: var(--accent-blue); width: 16px; height:16px;"></i>
+              <span>큐벳 ①, ②, ③을 각각 분광기 측정 슬롯에 장착하여 측정을 완료하세요. (큐벳 B는 바탕값 보정용)</span>
+            </div>
+          ` : ''}
+
+          <button id="btn-to-report" class="control-btn primary" ${!isAllScanned || state.isScanning ? 'disabled' : ''}>
+            <span>실험 보고서 작성실 이동</span>
+            <i data-lucide="chevron-right" style="width:14px; height:14px;"></i>
+          </button>
+        `;
+        layout.appendChild(bottomNav);
+        container.appendChild(layout);
+
+        // --- Generate path points utility ---
+        const generatePathData = (target, progressVal = 100) => {
+          const points = [];
+          const width = 600;
+          const height = 320;
+          const totalScanWavelength = 400 + (500 * (progressVal / 100));
+
+          for (let wl = 400; wl <= totalScanWavelength; wl += 5) {
+            const abs = getAbsorbance(target, wl);
+            const x = ((wl - 400) / 500) * width;
+            const y = height - (abs / 2.0) * height; // Scale 0~2 Abs over 320px
+            points.push(`${x},${y}`);
+          }
+          return points.length > 0 ? `M ${points.join(' L ')}` : '';
+        };
+
+        // Render existing scanned paths immediately
+        const updatePaths = () => {
+          ['blank', 'c1', 'c2', 'c3'].forEach(key => {
+            const pathNode = layout.querySelector(`#path-${key}`);
+            if (pathNode) {
+              if (state.scannedData[key]) {
+                // If it is the currently scanning one, render up to scanProgress
+                if (state.isScanning && state.activeScanTarget === key) {
+                  pathNode.setAttribute('d', generatePathData(key, state.scanProgress));
+                } else {
+                  pathNode.setAttribute('d', generatePathData(key, 100));
+                }
+              } else {
+                pathNode.setAttribute('d', '');
+              }
+            }
+          });
+        };
+
+        updatePaths();
+
+        // --- Event handler attachments ---
+        layout.querySelector('#rack-slot-blank').onclick = () => {
+          if (state.isScanning) return;
+          state.loadedCuvette = 'blank';
+          updateUI();
+        };
+
+        layout.querySelector('#rack-slot-c1').onclick = () => {
+          if (state.isScanning || !state.cuvettesInRack.c1) return;
+          state.loadedCuvette = 'c1';
+          updateUI();
+        };
+
+        layout.querySelector('#rack-slot-c2').onclick = () => {
+          if (state.isScanning || !state.cuvettesInRack.c2) return;
+          state.loadedCuvette = 'c2';
+          updateUI();
+        };
+
+        layout.querySelector('#rack-slot-c3').onclick = () => {
+          if (state.isScanning || !state.cuvettesInRack.c3) return;
+          state.loadedCuvette = 'c3';
+          updateUI();
+        };
+
+        const spectroSlot = layout.querySelector('#spectro-slot');
+        if (spectroSlot) {
+          spectroSlot.onclick = () => {
+            if (state.isScanning) return;
+            state.loadedCuvette = 'none';
+            updateUI();
+          };
+        }
+
+        const btnUnload = layout.querySelector('#btn-unload');
+        if (btnUnload) {
+          btnUnload.onclick = () => {
+            if (state.isScanning) return;
+            state.loadedCuvette = 'none';
+            updateUI();
+          };
+        }
+
+        const btnScan = layout.querySelector('#btn-scan');
+        if (btnScan) {
+          btnScan.onclick = () => {
+            if (state.loadedCuvette === 'none') {
+              alert("분광기에 측정할 큐벳을 장착해 주세요!");
+              return;
+            }
+            if (state.loadedCuvette !== 'blank' && !state.baselineDone) {
+              alert("시료를 측정하기 전에 Blank(증류수)를 넣고 베이스라인을 먼저 측정해야 합니다!");
+              return;
+            }
+
+            state.isScanning = true;
+            state.scanProgress = 0;
+            state.activeScanTarget = state.loadedCuvette;
+            state.scannedData[state.activeScanTarget] = true; // start drawing
+            
+            updateUI();
+
+            const laserLine = document.getElementById('laser-scan-line');
+            if (laserLine) laserLine.style.display = 'block';
+
+            // Simulate scan process
+            const scanInterval = setInterval(() => {
+              state.scanProgress += 4;
+              if (state.scanProgress >= 100) {
+                state.scanProgress = 100;
+                state.isScanning = false;
+                clearInterval(scanInterval);
+                
+                if (state.activeScanTarget === 'blank') {
+                  state.baselineDone = true;
+                  alert("베이스라인 보정이 완료되었습니다!");
+                }
+                updateUI();
+              } else {
+                // Update laser line position
+                if (laserLine) {
+                  laserLine.setAttribute('x1', `${(state.scanProgress / 100) * 600}`);
+                  laserLine.setAttribute('x2', `${(state.scanProgress / 100) * 600}`);
+                }
+                updatePaths();
+              }
+            }, 50);
+          };
+        }
+
+        // Mouse Move for Tooltip
+        const chartWrapper = layout.querySelector('#chart-svg-wrapper');
+        const tooltip = layout.querySelector('#chart-tooltip');
+        const hoverLine = layout.querySelector('#hover-track-line');
+        
+        if (chartWrapper && tooltip && hoverLine) {
+          chartWrapper.onmousemove = (e) => {
+            if (state.isScanning) return;
+            const rect = chartWrapper.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // convert x to wavelength (400 - 900 nm)
+            const wavelength = Math.round(400 + (x / rect.width) * 500);
+            
+            if (wavelength >= 400 && wavelength <= 900) {
+              hoverLine.style.display = 'block';
+              const svgX = ((wavelength - 400) / 500) * 600;
+              hoverLine.setAttribute('x1', svgX);
+              hoverLine.setAttribute('x2', svgX);
+              
+              // Calculate tooltip values
+              let tooltipHtml = `<div style="font-weight: bold; margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px;">파장: ${wavelength} nm</div>`;
+              let hasData = false;
+              
+              if (state.scannedData.c1) {
+                tooltipHtml += `<div style="color: ${lineColors.c1};">①번(NaCl): ${getAbsorbance('c1', wavelength).toFixed(3)} Abs</div>`;
+                hasData = true;
+              }
+              if (state.scannedData.c2) {
+                tooltipHtml += `<div style="color: ${lineColors.c2};">②번(NH₃): ${getAbsorbance('c2', wavelength).toFixed(3)} Abs</div>`;
+                hasData = true;
+              }
+              if (state.scannedData.c3) {
+                tooltipHtml += `<div style="color: ${lineColors.c3};">③번(글라이신): ${getAbsorbance('c3', wavelength).toFixed(3)} Abs</div>`;
+                hasData = true;
+              }
+              
+              if (hasData) {
+                tooltip.style.display = 'block';
+                tooltip.style.left = `${x + 15}px`;
+                tooltip.style.top = `${y - 80}px`;
+                tooltip.innerHTML = tooltipHtml;
+              } else {
+                tooltip.style.display = 'none';
+              }
+            }
+          };
+
+          chartWrapper.onmouseleave = () => {
+            hoverLine.style.display = 'none';
+            tooltip.style.display = 'none';
+          };
+        }
+
+        layout.querySelector('#btn-back-bench').onclick = () => {
+          state.currentStep = 1;
+          updateUI();
+        };
+
+        const btnToReport = layout.querySelector('#btn-to-report');
+        if (btnToReport) {
+          btnToReport.onclick = () => {
+            state.currentStep = 3;
+            updateUI();
+          };
+        }
+      }
+
+      // --- PHASE 3 Renderer: Report ---
+      function renderPhase3(container) {
+        const layout = document.createElement('div');
+        layout.className = 'report-grid';
+        
+        // 1) Report Form (Left side)
+        const reportForm = document.createElement('div');
+        reportForm.className = 'glass-card report-form';
+        reportForm.innerHTML = `
+          <div>
+            <h2 class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
+              <i data-lucide="file-text" style="color: var(--accent-purple); width:24px; height:24px;"></i>
+              <span>화학부 실험 탐구 활동 보고서</span>
+            </h2>
+            <p class="card-subtitle">황산구리 수용액의 리간드 교환 반응에 따른 분광학적 분석 결과 리포트</p>
+          </div>
+
+          <!-- Student identification -->
+          <div class="report-section student-info">
+            <div class="input-group">
+              <label class="input-label">학생 이름</label>
+              <input id="report-name" type="text" placeholder="예: 홍길동" class="text-input" value="${state.studentInfo.name}" ${state.submitted ? 'disabled' : ''} />
+            </div>
+            <div class="input-group">
+              <label class="input-label">학번 (또는 조 이름)</label>
+              <input id="report-student-id" type="text" placeholder="예: 20101" class="text-input" value="${state.studentInfo.studentId}" ${state.submitted ? 'disabled' : ''} />
+            </div>
+          </div>
+
+          <!-- Part 1: Data Table -->
+          <div class="report-section">
+            <div class="section-num-title">
+              <span class="section-num">1</span>
+              <span>최대 흡수 파장 (λ_max) 측정 결과 표</span>
+            </div>
+            <p class="question-text" style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem;">
+              가상 UV-Vis 분석 장치에서 스펙트럼 피크를 확인하여 각 수용액의 최대 흡수 파장을 정수로 기록하세요.
+            </p>
+
+            <div class="table-wrapper">
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>구분</th>
+                    <th>석영 큐벳에 넣은 물질</th>
+                    <th>관찰된 용액 색상</th>
+                    <th>최대 흡수 파장 (λ_max, nm)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><b>B (바탕 시료)</b></td>
+                    <td>증류수 (D.W.)</td>
+                    <td>무색 투명</td>
+                    <td>
+                      <input type="text" class="table-input" value="${state.lambdaInputs.blank}" disabled />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>수용액 ①</b></td>
+                    <td>0.1M CuSO₄ + 포화 NaCl</td>
+                    <td>황록색</td>
+                    <td>
+                      <input id="lambda-c1" type="number" placeholder="숫자 입력" class="table-input" value="${state.lambdaInputs.c1}" ${state.submitted ? 'disabled' : ''} />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>수용액 ②</b></td>
+                    <td>0.1M CuSO₄ + 과량 NH₃ (10배 희석)</td>
+                    <td>청람색 (짙은 파랑)</td>
+                    <td>
+                      <input id="lambda-c2" type="number" placeholder="숫자 입력" class="table-input" value="${state.lambdaInputs.c2}" ${state.submitted ? 'disabled' : ''} />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>수용액 ③</b></td>
+                    <td>0.1M CuSO₄ + 글라이신 (10배 희석)</td>
+                    <td>보라색 / 파란색</td>
+                    <td>
+                      <input id="lambda-c3" type="number" placeholder="숫자 입력" class="table-input" value="${state.lambdaInputs.c3}" ${state.submitted ? 'disabled' : ''} />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Part 2: Descriptive Questions -->
+          <div class="report-section">
+            <div class="section-num-title">
+              <span class="section-num">2</span>
+              <span>결과 해석 및 서술형 탐구 질문</span>
+            </div>
+
+            <!-- Q1 -->
+            <div class="question-card">
+              <p class="question-text">
+                <b>Q1.</b> 각 수용액이 실제로 띠는 색상(예: 황록색, 청람색)과 UV-Vis 스펙트럼에서 확인한 최대 흡수 파장의 색상 사이에는 어떤 관계가 있는가? <b>'보색(Complementary color)'</b>의 개념을 사용하여 설명하시오.
+              </p>
+              <textarea id="ans-q1" class="textarea-input" placeholder="답변을 작성해 주세요..." ${state.submitted ? 'disabled' : ''}>${state.answers.q1}</textarea>
+            </div>
+
+            <!-- Q2 -->
+            <div class="question-card">
+              <p class="question-text">
+                <b>Q2.</b> 포화 NaCl 수용액을 넣은 용액과 달리, 진한 암모니아수와 글라이신 수용액을 넣은 용액은 측정 전 왜 증류수로 10배 희석해야만 했는가? (<b>몰흡광계수</b>와 <b>비어-람베르트 법칙</b>을 참고할 것)
+              </p>
+              <textarea id="ans-q2" class="textarea-input" placeholder="답변을 작성해 주세요..." ${state.submitted ? 'disabled' : ''}>${state.answers.q2}</textarea>
+            </div>
+
+            <!-- Q3 -->
+            <div class="question-card">
+              <p class="question-text">
+                <b>Q3.</b> 실험 데이터를 바탕으로 결합한 네 가지 리간드(H₂O, Cl⁻, NH₃, 글라이신)를 d 오비탈을 크게 갈라지게 하는 <b>'강한 장 리간드'부터 '약한 장 리간드'</b> 순서대로 나열해 보시오. (예: NH3 &gt; 글라이신 &gt; H2O &gt; Cl- 와 같이 부등호 기입)
+              </p>
+              <textarea id="ans-q3" class="textarea-input" placeholder="예: NH3 > Glycine > H2O > Cl- " ${state.submitted ? 'disabled' : ''}>${state.answers.q3}</textarea>
+            </div>
+
+            <!-- Q4 -->
+            <div class="question-card">
+              <p class="question-text">
+                <b>Q4.</b> 포화 NaCl 수용액을 가해 황록색으로 변한 용액(①번 용액)에 다시 다량의 증류수를 붓는다면 수용액의 색과 UV-Vis 스펙트럼의 피크 위치는 어떻게 변할지 예측하고, <b>르샤틀리에 원리</b>를 적용하여 설명하시오.
+              </p>
+              <textarea id="ans-q4" class="textarea-input" placeholder="답변을 작성해 주세요..." ${state.submitted ? 'disabled' : ''}>${state.answers.q4}</textarea>
+            </div>
+
+            <!-- Q5 -->
+            <div class="question-card">
+              <p class="question-text">
+                <b>Q5.</b> 암모니아(NH₃)와 글라이신은 둘 다 질소(N)의 비공유 전자쌍을 제공하는 리간드임에도 불구하고 최대 흡수 파장과 착합물 안정성에 차이가 발생했다. 글라이신만의 구조적 특징(<b>킬레이트 결합</b>)이 착화합물에 어떤 영향을 미치는지 서술하시오.
+              </p>
+              <textarea id="ans-q5" class="textarea-input" placeholder="답변을 작성해 주세요..." ${state.submitted ? 'disabled' : ''}>${state.answers.q5}</textarea>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button id="btn-back-spec" class="control-btn" ${state.submitted ? 'disabled' : ''}>
+              <i data-lucide="chevron-left" style="width:14px; height:14px;"></i>
+              <span>이전 단계로 이동</span>
+            </button>
+            
+            ${!state.submitted ? `
+              <button id="btn-submit-report" class="control-btn primary">
+                <i data-lucide="sparkles" style="width: 16px; height:16px;"></i>
+                <span>보고서 제출 및 AI 피드백 확인</span>
+              </button>
+            ` : `
+              <button id="btn-edit-report" class="control-btn">
+                <i data-lucide="refresh-cw" style="width: 14px; height:14px;"></i>
+                <span>답안 수정</span>
+              </button>
+            `}
+            
+            ${state.submitted ? `
+              <button id="btn-print-report" class="control-btn primary" style="background: #7c3aed; color: #fff;">
+                <i data-lucide="printer" style="width: 16px; height:16px;"></i>
+                <span>인쇄 및 PDF로 보고서 내보내기</span>
+              </button>
+            ` : ''}
+          </div>
+        `;
+        layout.appendChild(reportForm);
+
+        // 2) AI Evaluation Sidebar (Right side)
+        const sidebar = document.createElement('div');
+        sidebar.className = 'feedback-sidebar';
+        
+        if (!state.submitted) {
+          sidebar.innerHTML = `
+            <div class="feedback-status glass-card">
+              <i data-lucide="alert-circle" style="width:32px; height:32px; color: var(--accent-purple); margin: 0 auto 1rem auto; display: block;"></i>
+              <h3 style="font-size: 1rem; font-weight: bold; color: #fff; margin-bottom: 0.5rem;">AI 채점 대기</h3>
+              <p style="font-size: 0.8rem; color: #64748b; line-height: 1.4;">
+                좌측의 보고서 양식을 다 채워넣으신 후 <b>'보고서 제출 및 AI 피드백 확인'</b> 버튼을 눌러주세요.
+              </p>
+            </div>
+          `;
+        } else {
+          // Submitted and ready
+          let feedbackItemsHtml = '';
+          state.evaluation.feedbacks.forEach(f => {
+            let badgeHtml = '';
+            if (f.matches && f.matches.length > 0) {
+              badgeHtml = `
+                <div style="margin-bottom: 0.4rem;">
+                  <span style="font-size: 0.75rem; color: #64748b;">검출된 학술 핵심 키워드: </span>
+                  ${f.matches.map(kw => `<span class="feedback-keyword-match" style="font-size: 0.75rem; margin-right: 4px; background: rgba(52,211,153,0.1); padding: 1px 4px; border-radius: 4px;">#${kw}</span>`).join('')}
+                </div>
+              `;
+            }
+            
+            feedbackItemsHtml += `
+              <div class="feedback-item">
+                <div style="font-weight: bold; color: #fff; margin-bottom: 0.4rem; font-size: 0.85rem;">
+                  ${f.title}
+                </div>
+                ${badgeHtml}
+                <p style="color: #cbd5e1; font-size: 0.8rem; line-height: 1.4;">${f.desc}</p>
+              </div>
+            `;
+          });
+
+          sidebar.innerHTML = `
+            <div class="feedback-card">
+              <div class="feedback-title">
+                <i data-lucide="award" style="width:20px; height:20px;"></i>
+                <span>AI 종합 평가 및 학업 성취도</span>
+              </div>
+
+              <div class="score-display">
+                <span class="score-num">${state.evaluation.totalScore}</span>
+                <span class="score-total">/ 100 점</span>
+              </div>
+
+              <div class="feedback-list">${feedbackItemsHtml}</div>
+
+              <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem; color: #64748b; line-height: 1.4;">
+                <span style="font-weight: bold; color: #cbd5e1;">💡 학업 도움 팁:</span> 인쇄 또는 PDF 저장 버튼을 눌러 피드백 내용까지 보고서로 출력해 동아리 활동 기록으로 제출할 수 있습니다.
+              </div>
+            </div>
+          `;
+        }
+        
+        layout.appendChild(sidebar);
+        container.appendChild(layout);
+
+        // --- Inputs syncing to state on input ---
+        const nameInput = layout.querySelector('#report-name');
+        if (nameInput) {
+          nameInput.oninput = (e) => { state.studentInfo.name = e.target.value; };
+        }
+        const stidInput = layout.querySelector('#report-student-id');
+        if (stidInput) {
+          stidInput.oninput = (e) => { state.studentInfo.studentId = e.target.value; };
+        }
+        const lambdaC1 = layout.querySelector('#lambda-c1');
+        if (lambdaC1) {
+          lambdaC1.oninput = (e) => { state.lambdaInputs.c1 = e.target.value; };
+        }
+        const lambdaC2 = layout.querySelector('#lambda-c2');
+        if (lambdaC2) {
+          lambdaC2.oninput = (e) => { state.lambdaInputs.c2 = e.target.value; };
+        }
+        const lambdaC3 = layout.querySelector('#lambda-c3');
+        if (lambdaC3) {
+          lambdaC3.oninput = (e) => { state.lambdaInputs.c3 = e.target.value; };
+        }
+
+        ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(key => {
+          const txtNode = layout.querySelector(`#ans-${key}`);
+          if (txtNode) {
+            txtNode.oninput = (e) => { state.answers[key] = e.target.value; };
+          }
+        });
+
+        // --- Navigation Action ---
+        layout.querySelector('#btn-back-spec').onclick = () => {
+          state.currentStep = 2;
+          updateUI();
+        };
+
+        const btnSubmit = layout.querySelector('#btn-submit-report');
+        if (btnSubmit) {
+          btnSubmit.onclick = () => {
+            if (!state.studentInfo.name || !state.studentInfo.studentId) {
+              alert("이름과 학번을 먼저 입력해 주세요!");
+              return;
+            }
+
+            // Perform grading
+            let score = 0;
+            const feedbacks = [];
+
+            // Table validation
+            const t1 = parseFloat(state.lambdaInputs.c1);
+            const t2 = parseFloat(state.lambdaInputs.c2);
+            const t3 = parseFloat(state.lambdaInputs.c3);
+
+            const isC1Correct = t1 >= 730 && t1 <= 750;
+            const isC2Correct = t2 >= 600 && t2 <= 620;
+            const isC3Correct = t3 >= 620 && t3 <= 640;
+
+            let tableScore = 0;
+            if (isC1Correct) tableScore += 10;
+            if (isC2Correct) tableScore += 10;
+            if (isC3Correct) tableScore += 10;
+            score += tableScore;
+
+            feedbacks.push({
+              title: "최대 흡수 파장 데이터 테이블 검증",
+              desc: `실험값 매칭 결과: 
+                <br/>• NaCl 반응(①): ${isNaN(t1) ? '미입력' : t1 + ' nm'} (${isC1Correct ? '정확함 - 이론치 약 740 nm' : '오차 있음 - 이론치 740 nm'})
+                <br/>• 암모니아 반응(②): ${isNaN(t2) ? '미입력' : t2 + ' nm'} (${isC2Correct ? '정확함 - 이론치 약 610 nm' : '오차 있음 - 이론치 610 nm'})
+                <br/>• 글라이신 반응(③): ${isNaN(t3) ? '미입력' : t3 + ' nm'} (${isC3Correct ? '정확함 - 이론치 약 630 nm' : '오차 있음 - 이론치 630 nm'})`
+            });
+
+            // Q1: Complementary colors
+            const q1Keywords = ['보색', '흡수', '반사', '통과', '색상'];
+            const q1Matches = q1Keywords.filter(kw => state.answers.q1.toLowerCase().includes(kw));
+            const q1Score = q1Matches.length >= 2 ? 14 : q1Matches.length * 6;
+            score += q1Score;
+            feedbacks.push({
+              title: "탐구 1: 보색 관계와 흡수 스펙트럼",
+              matches: q1Matches,
+              desc: q1Score >= 12 
+                ? "훌륭합니다! 물질의 고유한 색상은 흡수된 빛의 '보색'에 해당하는 파장이 반사/투과되어 우리 눈에 보인다는 점을 명확히 설명했습니다."
+                : "보색(Complementary Color)과 빛의 흡수/반사 메커니즘을 연관 지어 보완 설명해 보세요."
+            });
+
+            // Q2: Dilution
+            const q2Keywords = ['비어', '람베르트', '흡광도', '포화', '농도', '검출', '한계'];
+            const q2Matches = q2Keywords.filter(kw => state.answers.q2.toLowerCase().includes(kw));
+            const q2Score = q2Matches.length >= 2 ? 14 : q2Matches.length * 6;
+            score += q2Score;
+            feedbacks.push({
+              title: "탐구 2: 용액을 희석한 이유 (비어-람베르트 법칙)",
+              matches: q2Matches,
+              desc: q2Score >= 12
+                ? "잘 작성하셨습니다. 흡광도가 너무 높으면 빛이 대부분 흡수되어 분광 장비의 검출 한계를 넘어서(포화 상태) 농도와 흡광도의 비례 관계(비어-람베르트 법칙)가 깨진다는 핵심을 짚었습니다."
+                : "흡광도가 너무 높을 때의 기기 측정 한계 및 농도-흡광도 법칙(Beer-Lambert Law)을 서술해 주세요."
+            });
+
+            // Q3: Spectrochemical Series
+            const q3Answers = ['cl', 'h2o', 'gly', 'nh3'];
+            const q3AnsNorm = state.answers.q3.replace(/\s+/g, '').toLowerCase();
+            const orderCorrect = q3AnsNorm.includes('cl') && q3AnsNorm.includes('h2o') && q3AnsNorm.includes('gly') && q3AnsNorm.includes('nh3') &&
+                                 q3AnsNorm.indexOf('cl') < q3AnsNorm.indexOf('h2o') &&
+                                 q3AnsNorm.indexOf('h2o') < q3AnsNorm.indexOf('gly') &&
+                                 q3AnsNorm.indexOf('gly') < q3AnsNorm.indexOf('nh3');
+            const q3Score = orderCorrect ? 14 : 0;
+            score += q3Score;
+            feedbacks.push({
+              title: "탐구 3: 분광화학적 계열과 리간드 장 세기",
+              desc: orderCorrect
+                ? "정확합니다! 리간드의 d오비탈 갈라짐 에너지 세기 순서는 Cl⁻ < H₂O < Glycine < NH₃ 순서입니다. 파장이 짧을수록 에너지가 크므로 갈라짐이 큰 강한 장 리간드입니다."
+                : "스펙트럼의 피크 파장(λ_max)이 짧을수록 에너지가 큽니다. 에너지가 클수록 d오비탈 갈라짐이 큰 강한 장 리간드이므로 순서를 다시 검토해 보세요."
+            });
+
+            // Q4: Le Chatelier Principle
+            const q4Keywords = ['평형', '르샤틀리에', '역반응', '왼쪽', '푸른', '하늘', '감소'];
+            const q4Matches = q4Keywords.filter(kw => state.answers.q4.toLowerCase().includes(kw));
+            const q4Score = q4Matches.length >= 2 ? 14 : q4Matches.length * 6;
+            score += q4Score;
+            feedbacks.push({
+              title: "탐구 4: 물 추가 시 변화 (르샤틀리에 원리)",
+              matches: q4Matches,
+              desc: q4Score >= 12
+                ? "뛰어난 해석입니다! 증류수를 많이 가하면 물 분자의 농도가 크게 높아져 평형이 역반응(왼쪽)으로 이동하게 되고, 이에 따라 녹색/황록색에서 다시 하늘색 푸른빛([Cu(H₂O)₆]²⁺)으로 돌아갑니다."
+                : "르샤틀리에 원리에 따라 용매인 물을 대량 가했을 때 평형 이동의 방향과 수용액의 색깔 복원 여부를 확인해 보세요."
+            });
+
+            // Q5: Chelate Effect
+            const q5Keywords = ['킬레이트', '두자리', '고리', '안정', '엔트로피', '배위'];
+            const q5Matches = q5Keywords.filter(kw => state.answers.q5.toLowerCase().includes(kw));
+            const q5Score = q5Matches.length >= 2 ? 14 : q5Matches.length * 6;
+            score += q5Score;
+            feedbacks.push({
+              title: "탐구 5: 킬레이트 효과 (글라이신 배위)",
+              matches: q5Matches,
+              desc: q5Score >= 12
+                ? "매우 훌륭합니다. 글라이신은 한 분자에 두 배위 원자(N, O)를 가져 금속 이온을 고리 형태로 감싸는 '두자리 킬레이트 리간드'를 형성하여, 한자리 리간드인 암모니아에 비해 엔트로피적/구조적으로 훨씬 안정한 착화합물을 만든다는 킬레이트 효과를 정교히 파악했습니다."
+                : "글라이신이 왜 '두자리 리간드'인지, 킬레이트 효과(Chelate Effect)가 착화합물 안정성에 어떤 기여를 하는지 적어 보세요."
+            });
+
+            state.evaluation = {
+              totalScore: score,
+              feedbacks: feedbacks
+            };
+            state.submitted = true;
+            updateUI();
+          };
+        }
+
+        const btnEdit = layout.querySelector('#btn-edit-report');
+        if (btnEdit) {
+          btnEdit.onclick = () => {
+            state.submitted = false;
+            updateUI();
+          };
+        }
+
+        const btnPrint = layout.querySelector('#btn-print-report');
+        if (btnPrint) {
+          btnPrint.onclick = () => {
+            window.print();
+          };
+        }
+      }
+
+      // 4. Initial trigger on window load
+      window.onload = () => {
+        updateUI();
+      };
+    </script>
   </body>
 </html>
