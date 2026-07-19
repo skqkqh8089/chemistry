@@ -1153,6 +1153,212 @@
         font-weight: bold;
       }
 
+      /* --- CHEMICAL TRANSFER ANIMATIONS --- */
+
+      /* 1. Solid Powder Pile at the bottom of Beaker */
+      .solid-powder-pile {
+        position: absolute;
+        bottom: 0;
+        left: 20px;
+        width: 80px;
+        height: 14px;
+        background: radial-gradient(circle, var(--accent-blue) 0%, rgba(56, 189, 248, 0.6) 50%, transparent 80%);
+        border-radius: 50% 50% 0 0;
+        z-index: 5;
+        transition: transform 1.5s ease-in-out, opacity 1.5s ease-in-out;
+      }
+
+      /* 2. Weighing Paper with Solid Powder Moving */
+      .weighing-paper-transfer {
+        position: absolute;
+        width: 80px;
+        height: 20px;
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 2px;
+        top: 200px;
+        left: calc(50% - 150px);
+        z-index: 40;
+        transform-origin: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+        pointer-events: none;
+      }
+
+      .weighing-paper-powder {
+        width: 30px;
+        height: 10px;
+        background: var(--accent-blue);
+        border-radius: 50% 50% 0 0;
+        box-shadow: 0 0 6px var(--accent-blue);
+      }
+
+      .animate-solid-transfer {
+        animation: solidTransferAnim 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+
+      @keyframes solidTransferAnim {
+        0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        35% { transform: translate(140px, -70px) rotate(15deg); }
+        50% { transform: translate(140px, -70px) rotate(-65deg); }
+        80% { transform: translate(140px, -70px) rotate(-65deg); opacity: 1; }
+        100% { transform: translate(140px, -20px) rotate(-65deg); opacity: 0; }
+      }
+
+      /* 3. Dropping Powder Particles */
+      .powder-drop-particles {
+        position: absolute;
+        width: 16px;
+        height: 50px;
+        left: calc(50% + 20px);
+        top: 170px;
+        z-index: 35;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .animate-powder-drop {
+        animation: powderDropAnim 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+
+      .powder-particle {
+        width: 4px;
+        height: 4px;
+        background: var(--accent-blue);
+        border-radius: 50%;
+        box-shadow: 0 0 2px var(--accent-blue);
+      }
+
+      @keyframes powderDropAnim {
+        0%, 40% { opacity: 0; transform: translateY(0); }
+        45% { opacity: 1; }
+        70% { opacity: 1; transform: translateY(80px); }
+        80%, 100% { opacity: 0; transform: translateY(90px); }
+      }
+
+      /* 4. Pipette Moving Animation */
+      .pipette-tool-animate {
+        position: absolute;
+        width: 14px;
+        height: 120px;
+        background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.4) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 2px 2px 8px 8px;
+        z-index: 45;
+        top: 110px;
+        left: calc(50% - 150px);
+        transform-origin: top center;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        pointer-events: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      }
+
+      .pipette-bulb {
+        position: absolute;
+        top: -20px;
+        left: -3px;
+        width: 20px;
+        height: 20px;
+        background: #ef4444;
+        border-radius: 10px 10px 0 0;
+      }
+
+      .pipette-liquid-content {
+        width: 100%;
+        background: var(--color-cuso4);
+        border-radius: 0 0 6px 6px;
+        transition: height 0.5s ease;
+      }
+
+      .animate-pipetting {
+        animation: pipetteAnim 2.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+
+      @keyframes pipetteAnim {
+        0% { transform: translate(0, 0); opacity: 0; }
+        10% { transform: translate(0, -40px); opacity: 1; }
+        25% { transform: translate(0, 20px); } /* Insert into standard flask */
+        40% { transform: translate(0, -40px); } /* Lift with liquid */
+        65% { transform: translate(145px, -40px); } /* Move to reaction beaker */
+        75% { transform: translate(145px, 20px); } /* Lower in beaker */
+        90% { transform: translate(145px, -40px); } /* Dispense & lift */
+        100% { transform: translate(0, -40px); opacity: 0; }
+      }
+
+      /* 5. Liquid Pour Stream Effect */
+      .liquid-pour-stream {
+        position: absolute;
+        width: 4px;
+        background: rgba(56, 189, 248, 0.7);
+        z-index: 25;
+        top: 180px;
+        left: calc(50% - 20px);
+        opacity: 0;
+        height: 0;
+        transition: all 0.2s ease;
+        pointer-events: none;
+        border-radius: 2px;
+        box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
+      }
+
+      .liquid-pour-stream.active {
+        opacity: 1;
+        height: 120px;
+        animation: streamWiggle 0.15s infinite alternate;
+      }
+
+      @keyframes streamWiggle {
+        0% { transform: translateX(-1px); }
+        100% { transform: translateX(1px); }
+      }
+
+      /* 6. Pouring Beaker (Beaker -> Flask) Animation */
+      .animate-pouring-beaker {
+        animation: pourBeakerAnim 1.8s ease-in-out forwards;
+      }
+
+      @keyframes pourBeakerAnim {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        30% { transform: translate(100px, -50px) rotate(15deg); }
+        42% { transform: translate(100px, -50px) rotate(75deg); }
+        75% { transform: translate(100px, -50px) rotate(75deg); }
+        100% { transform: translate(0, 0) rotate(0deg); }
+      }
+
+      /* 7. Pouring Beaker to Cuvette (Beaker -> Cuvette) Animation */
+      .animate-pouring-to-cuvette {
+        animation: pourCuvetteAnim 1.8s ease-in-out forwards;
+      }
+
+      @keyframes pourCuvetteAnim {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        30% { transform: translate(105px, -60px) rotate(15deg); }
+        42% { transform: translate(105px, -60px) rotate(75deg); }
+        75% { transform: translate(105px, -60px) rotate(75deg); }
+        100% { transform: translate(0, 0) rotate(0deg); }
+      }
+
+      /* 8. Pouring Glycine Beaker into Reaction Beaker Animation */
+      .animate-pouring-glycine-beaker {
+        animation: pourGlycineAnim 1.8s ease-in-out forwards;
+      }
+
+      @keyframes pourGlycineAnim {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        30% { transform: translate(-75px, -50px) rotate(-15deg); }
+        42% { transform: translate(-75px, -50px) rotate(-75deg); }
+        75% { transform: translate(-75px, -50px) rotate(-75deg); }
+        100% { transform: translate(0, 0) rotate(0deg); }
+      }
+
       /* PRINT LAYOUT OVERRIDES */
       @media print {
         body {
@@ -1539,11 +1745,15 @@
         };
       }
 
-      // --- PHASE 1 Renderer: Lab Bench ---
       let localLoading = false;
       let localDropAnimation = false;
       let localDropColor = 'var(--accent-blue)';
       let localStirring = false;
+      let isTransferringSolid = false;
+      let isPouring = false;
+      let isPipetting = false;
+      let isPouringGlycine = false;
+      let hasSolidInBeaker = false;
 
       function renderPhase1(container) {
         const layout = document.createElement('div');
@@ -1713,6 +1923,32 @@
         const benchDisplay = document.createElement('div');
         benchDisplay.className = 'bench-display';
 
+        if (isTransferringSolid) {
+          const solidOverlay = document.createElement('div');
+          solidOverlay.style.contents = 'true';
+          solidOverlay.innerHTML = `
+            <div class="weighing-paper-transfer animate-solid-transfer">
+              <div class="weighing-paper-powder"></div>
+            </div>
+            <div class="powder-drop-particles animate-powder-drop">
+              <div class="powder-particle"></div>
+              <div class="powder-particle"></div>
+              <div class="powder-particle"></div>
+            </div>
+          `;
+          benchDisplay.appendChild(solidOverlay);
+        }
+
+        if (isPipetting) {
+          const pipetteOverlay = document.createElement('div');
+          pipetteOverlay.className = 'pipette-tool-animate animate-pipetting';
+          pipetteOverlay.innerHTML = `
+            <div class="pipette-bulb"></div>
+            <div class="pipette-liquid-content" style="height: 70%"></div>
+          `;
+          benchDisplay.appendChild(pipetteOverlay);
+        }
+
         // Drop animation overlay
         if (localDropAnimation) {
           const dropper = document.createElement('div');
@@ -1733,9 +1969,11 @@
         // Render based on Active Tab
         if (state.activeTab === 0) {
           // --- TAB 0 CuSO4 PREP ---
-          if (state.subStep <= 1) {
+          if (state.subStep <= 1 || isTransferringSolid) {
             const scaleWrapper = document.createElement('div');
             scaleWrapper.className = 'scale-container';
+            scaleWrapper.style.opacity = isTransferringSolid ? '0.4' : '1';
+            scaleWrapper.style.transition = 'opacity 0.5s';
             scaleWrapper.innerHTML = `
               <div class="lab-scale">
                 <div class="scale-plate"></div>
@@ -1743,39 +1981,62 @@
                   ${state.scaleState.power ? `${state.scaleState.weight.toFixed(2)} g` : 'OFF'}
                 </div>
               </div>
-              <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                <button id="btn-scale-power" class="control-btn">전원</button>
-                <button id="btn-scale-tare" class="control-btn" ${!state.scaleState.power ? 'disabled' : ''}>영점(Tare)</button>
-                <button id="btn-scale-add" class="control-btn" ${(!state.scaleState.power || !state.scaleState.tare || state.scaleState.weight >= 6.24) ? 'disabled' : ''}>
-                  CuSO₄·5H₂O 계량 (+1.25g)
-                </button>
-              </div>
-              ${state.scaleState.weight === 6.24 && state.subStep === 1 ? `
-                <button id="btn-scale-complete" class="control-btn primary" style="margin-top: 0.5rem;">
-                  계량 완료
-                </button>
+              ${!isTransferringSolid ? `
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                  <button id="btn-scale-power" class="control-btn">전원</button>
+                  <button id="btn-scale-tare" class="control-btn" ${!state.scaleState.power ? 'disabled' : ''}>영점(Tare)</button>
+                  <button id="btn-scale-add-125" class="control-btn" ${(!state.scaleState.power || !state.scaleState.tare) ? 'disabled' : ''}>
+                    기본 스푼 (+1.25g)
+                  </button>
+                </div>
+                ${state.scaleState.power && state.scaleState.tare ? `
+                  <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; width: 100%;">
+                    <div style="display: flex; gap: 0.25rem; justify-content: center;">
+                      <button id="btn-scale-add-1" class="control-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">+1.00g</button>
+                      <button id="btn-scale-add-01" class="control-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">+0.10g</button>
+                      <button id="btn-scale-add-001" class="control-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">+0.01g</button>
+                    </div>
+                    <div style="display: flex; gap: 0.25rem; justify-content: center;">
+                      <button id="btn-scale-sub-1" class="control-btn" ${state.scaleState.weight <= 0 ? 'disabled' : ''} style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">-1.00g</button>
+                      <button id="btn-scale-sub-01" class="control-btn" ${state.scaleState.weight <= 0 ? 'disabled' : ''} style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">-0.10g</button>
+                      <button id="btn-scale-sub-001" class="control-btn" ${state.scaleState.weight <= 0 ? 'disabled' : ''} style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">-0.01g</button>
+                    </div>
+                  </div>
+                ` : ''}
+                ${state.scaleState.weight === 6.24 && state.subStep === 1 ? `
+                  <button id="btn-scale-complete" class="control-btn primary" style="margin-top: 0.5rem;">
+                    계량 완료
+                  </button>
+                ` : ''}
               ` : ''}
             `;
             benchDisplay.appendChild(scaleWrapper);
-          } else if (state.subStep >= 2 && state.subStep <= 3) {
+          }
+          if ((state.subStep >= 2 && state.subStep <= 3) || isTransferringSolid) {
             const beakerWrapper = document.createElement('div');
             beakerWrapper.className = 'beaker-container';
+            beakerWrapper.style.transition = 'all 0.5s';
             beakerWrapper.innerHTML = `
               ${localStirring ? '<div class="stirring-rod stirring"></div>' : ''}
               ${!localStirring && state.subStep === 3 ? '<div class="stirring-rod"></div>' : ''}
               <div class="beaker">
+                ${hasSolidInBeaker ? `
+                  <div class="solid-powder-pile" style="transform: ${localStirring ? 'scale(0.2) translateY(5px)' : 'scale(1)'}; opacity: ${state.beakerLiquid > 0 && localStirring ? 0.2 : 1};"></div>
+                ` : ''}
                 <div class="liquid" style="height: ${state.beakerLiquid}%; background-color: ${state.beakerLiquid > 0 ? 'var(--color-cuso4)' : 'transparent'};">
                   ${state.beakerLiquid > 0 ? '<span style="font-size: 0.65rem; color: #fff; z-index: 10;">50mL</span>' : ''}
                 </div>
               </div>
-              <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                ${state.subStep === 2 ? `
-                  <button id="btn-add-water" class="control-btn primary" ${localLoading ? 'disabled' : ''}>증류수 50mL 추가</button>
-                ` : ''}
-                ${state.subStep === 3 ? `
-                  <button id="btn-stir" class="control-btn primary" ${localStirring ? 'disabled' : ''}>유리막대로 젓기</button>
-                ` : ''}
-              </div>
+              ${!isTransferringSolid ? `
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                  ${state.subStep === 2 ? `
+                    <button id="btn-add-water" class="control-btn primary" ${localLoading ? 'disabled' : ''}>증류수 50mL 추가</button>
+                  ` : ''}
+                  ${state.subStep === 3 ? `
+                    <button id="btn-stir" class="control-btn primary" ${localStirring ? 'disabled' : ''}>유리막대로 젓기</button>
+                  ` : ''}
+                </div>
+              ` : ''}
             `;
             benchDisplay.appendChild(beakerWrapper);
           } else if (state.subStep >= 4 && state.subStep <= 8) {
@@ -1783,9 +2044,10 @@
             transferWrapper.style.display = 'flex';
             transferWrapper.style.gap = '2rem';
             transferWrapper.style.alignItems = 'flex-end';
+            transferWrapper.style.position = 'relative';
             transferWrapper.innerHTML = `
               <!-- Beaker -->
-              <div class="beaker-container" style="opacity: ${state.subStep >= 5 ? 0.6 : 1}">
+              <div class="beaker-container ${isPouring ? 'animate-pouring-beaker' : ''}" style="opacity: ${state.subStep >= 5 ? 0.6 : 1}; transition: all 0.3s;">
                 <div class="beaker">
                   <div class="liquid" style="height: ${state.beakerLiquid}%; background-color: ${state.beakerLiquid > 0 ? 'rgba(56, 189, 248, 0.4)' : 'transparent'};"></div>
                 </div>
@@ -1793,48 +2055,37 @@
               </div>
 
               <!-- Volumetric Flask -->
-              <div class="flask-container">
+              <div class="flask-container" style="position: relative;">
+                ${isPouring ? `
+                  <div class="liquid-pour-stream active" style="left: 55px; top: -110px; height: 110px; background-color: ${state.beakerLiquid > 0 ? 'var(--color-cuso4)' : 'rgba(56, 189, 248, 0.4)'};"></div>
+                ` : ''}
                 <div class="volumetric-flask">
                   <div class="flask-neck">
                     <div class="flask-neck-line"></div>
-                    ${state.flaskLiquid > 160 ? `
-                      <div class="flask-liquid" style="height: 100%; top: ${100 - ((state.flaskLiquid - 160) / 90) * 100}%; width: 100%; left: 0;"></div>
-                    ` : ''}
+                    <div id="flask-liquid-neck" class="flask-liquid" style="height: 100%; top: ${100 - ((state.flaskLiquid - 160) / 90) * 100}%; width: 100%; left: 0; display: ${state.flaskLiquid > 160 ? 'block' : 'none'};"></div>
                   </div>
                   <div class="flask-body">
                     <div class="flask-liquid" style="height: ${Math.min((state.flaskLiquid / 160) * 100, 100)}%;"></div>
                   </div>
                 </div>
-                <span style="font-size: 0.75rem; margin-top: 0.5rem;">부피 플라스크 (${state.flaskLiquid}mL)</span>
+                <span id="flask-volume-text" style="font-size: 0.75rem; margin-top: 0.5rem;">부피 플라스크 (${state.flaskLiquid}mL)</span>
+
+                <!-- Slider relative to Flask -->
+                ${state.subStep === 8 ? `
+                  <div id="flask-slider-box" style="position: absolute; left: 130px; bottom: 20px; width: 220px; background: rgba(15,23,42,0.95); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--glass-border); z-index: 40;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+                      <span>증류수 미세 조절</span>
+                      <span id="flask-slider-val" style="color: var(--accent-rose); font-weight: bold;">${state.flaskLiquid} / 250 mL</span>
+                    </div>
+                    <input id="flask-range" type="range" min="240" max="250" value="${state.flaskLiquid}" style="width: 100%; cursor: pointer;" />
+                    <p style="font-size: 0.65rem; color: #94a3b8; margin-top: 0.25rem; text-align: center; line-height: 1.3;">
+                      슬라이더를 조작하여 눈금선에 맞추세요.
+                    </p>
+                  </div>
+                ` : ''}
               </div>
             `;
             benchDisplay.appendChild(transferWrapper);
-
-            // Sub-step fine controls
-            if (state.subStep === 8) {
-              const sliderDiv = document.createElement('div');
-              sliderDiv.style.position = 'absolute';
-              sliderDiv.style.bottom = '110px';
-              sliderDiv.style.left = '50%';
-              sliderDiv.style.transform = 'translateX(-50%)';
-              sliderDiv.style.width = '220px';
-              sliderDiv.style.background = 'rgba(15,23,42,0.9)';
-              sliderDiv.style.padding = '1rem';
-              sliderDiv.style.borderRadius = '8px';
-              sliderDiv.style.border = '1px solid var(--glass-border)';
-              sliderDiv.style.zIndex = '40';
-              sliderDiv.innerHTML = `
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
-                  <span>증류수 미세 조절 (눈높이 정렬)</span>
-                  <span style="color: var(--accent-rose); font-weight: bold;">${state.flaskLiquid} / 250 mL</span>
-                </div>
-                <input id="flask-range" type="range" min="240" max="250" value="${state.flaskLiquid}" style="width: 100%;" />
-                <p style="font-size: 0.65rem; color: #64748b; margin-top: 0.25rem; text-align: center;">
-                  슬라이더를 조작하여 눈금선(250mL)에 정확히 맞추세요.
-                </p>
-              `;
-              benchDisplay.appendChild(sliderDiv);
-            }
 
             const stepBtnWrapper = document.createElement('div');
             stepBtnWrapper.style.display = 'flex';
@@ -1877,7 +2128,7 @@
           tab1Wrapper.style.gap = '2rem';
           tab1Wrapper.style.width = '100%';
           tab1Wrapper.innerHTML = `
-            <div style="display: flex; gap: 3rem; align-items: flex-end; justify-content: center; width: 100%;">
+            <div style="display: flex; gap: 3rem; align-items: flex-end; justify-content: center; width: 100%; position: relative;">
               <!-- CuSO4 Flask -->
               <div class="flask-container" style="opacity: 0.5;">
                 <div class="volumetric-flask">
@@ -1890,7 +2141,7 @@
               </div>
 
               <!-- Beaker -->
-              <div class="beaker-container">
+              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s;">
                 <div class="beaker">
                   ${state.naclState.cuAdded ? `
                     <div class="liquid" style="height: 35%; background-color: ${state.naclState.solutionColor};">
@@ -1902,7 +2153,10 @@
               </div>
 
               <!-- Cuvette -->
-              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2);">
+              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2); position: relative;">
+                ${isPouring ? `
+                  <div class="liquid-pour-stream active" style="left: 25px; top: -110px; height: 110px; background-color: ${state.naclState.solutionColor};"></div>
+                ` : ''}
                 <div class="cuvette" style="opacity: ${state.naclState.inCuvette ? 1 : 0.2}">
                   ${state.naclState.inCuvette ? `<div class="cuvette-liquid" style="background-color: var(--color-nacl-reaction);"></div>` : ''}
                   <div class="cuvette-label">①</div>
@@ -1913,7 +2167,7 @@
             <!-- Buttons -->
             <div style="display: flex; gap: 0.75rem;">
               ${!state.naclState.cuAdded ? `
-                <button id="btn-nacl-add-cu" class="control-btn primary">피펫으로 0.1M CuSO₄ 수용액 3mL 분주</button>
+                <button id="btn-nacl-add-cu" class="control-btn primary" ${localLoading ? 'disabled' : ''}>피펫으로 0.1M CuSO₄ 수용액 3mL 분주</button>
               ` : ''}
               ${state.naclState.cuAdded && state.naclState.naclDrops < 3 ? `
                 <button id="btn-nacl-add-drop" class="control-btn primary" ${localDropAnimation ? 'disabled' : ''}>
@@ -1940,9 +2194,9 @@
           tab2Wrapper.style.gap = '2rem';
           tab2Wrapper.style.width = '100%';
           tab2Wrapper.innerHTML = `
-            <div style="display: flex; gap: 2rem; align-items: flex-end; justify-content: center; width: 100%;">
+            <div style="display: flex; gap: 2rem; align-items: flex-end; justify-content: center; width: 100%; position: relative;">
               <!-- Beaker -->
-              <div class="beaker-container">
+              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s;">
                 <div class="beaker">
                   ${state.nh3State.cuAdded ? `
                     <div class="liquid" style="height: 35%; background-color: ${state.nh3State.solutionColor};">
@@ -1955,7 +2209,10 @@
               </div>
 
               <!-- Cuvette -->
-              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2);">
+              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2); position: relative;">
+                ${isPouring ? `
+                  <div class="liquid-pour-stream active" style="left: 25px; top: -110px; height: 110px; background-color: ${state.nh3State.solutionColor};"></div>
+                ` : ''}
                 <div class="cuvette" style="opacity: ${state.nh3State.inCuvette ? 1 : 0.2}">
                   ${state.nh3State.inCuvette ? `<div class="cuvette-liquid" style="background-color: rgba(59, 130, 246, 0.8);"></div>` : ''}
                   <div class="cuvette-label">②</div>
@@ -1998,7 +2255,7 @@
           tab3Wrapper.style.gap = '1.5rem';
           tab3Wrapper.style.width = '100%';
           tab3Wrapper.innerHTML = `
-            <div style="display: flex; gap: 1.5rem; align-items: flex-end; justify-content: center; width: 100%;">
+            <div style="display: flex; gap: 1.5rem; align-items: flex-end; justify-content: center; width: 100%; position: relative;">
               <!-- pH Test Strip -->
               ${state.glycineState.cuAdded ? `
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
@@ -2008,7 +2265,10 @@
               ` : ''}
 
               <!-- Beaker -->
-              <div class="beaker-container">
+              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
+                ${isPouringGlycine ? `
+                  <div class="liquid-pour-stream active" style="left: 60px; top: -110px; height: 110px; background-color: rgba(255,255,255,0.2);"></div>
+                ` : ''}
                 <div class="beaker">
                   ${state.glycineState.cuAdded ? `
                     <div class="liquid" style="height: 35%; background-color: ${state.glycineState.solutionColor};">
@@ -2021,8 +2281,23 @@
                 <span style="font-size: 0.75rem; margin-top: 0.5rem; font-weight: bold;">반응 비커</span>
               </div>
 
+              <!-- Glycine Beaker -->
+              ${(!state.glycineState.mixed || isPouringGlycine) ? `
+                <div class="beaker-container ${isPouringGlycine ? 'animate-pouring-glycine-beaker' : ''}" style="opacity: ${state.glycineState.glyPrepared ? (state.glycineState.mixed ? 0.4 : 1) : 0.2}; transition: all 0.3s;">
+                  <div class="beaker" style="width: 80px; height: 100px;">
+                    ${state.glycineState.glyPrepared && !state.glycineState.mixed ? `
+                      <div class="liquid" style="height: 50%; background-color: rgba(255,255,255,0.15);"></div>
+                    ` : ''}
+                  </div>
+                  <span style="font-size: 0.7rem; margin-top: 0.5rem;">글라이신 비커</span>
+                </div>
+              ` : ''}
+
               <!-- Cuvette -->
-              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2);">
+              <div class="cuvette-rack" style="padding: 0.5rem; background: rgba(0,0,0,0.2); position: relative;">
+                ${isPouring ? `
+                  <div class="liquid-pour-stream active" style="left: 25px; top: -110px; height: 110px; background-color: ${state.glycineState.solutionColor};"></div>
+                ` : ''}
                 <div class="cuvette" style="opacity: ${state.glycineState.inCuvette ? 1 : 0.2}">
                   ${state.glycineState.inCuvette ? `<div class="cuvette-liquid" style="background-color: rgba(167, 139, 250, 0.7);"></div>` : ''}
                   <div class="cuvette-label">③</div>
@@ -2093,6 +2368,13 @@
             btn.onclick = () => {
               state.activeTab = i;
               state.subStep = 0;
+              localLoading = false;
+              localStirring = false;
+              isTransferringSolid = false;
+              isPouring = false;
+              isPipetting = false;
+              isPouringGlycine = false;
+              hasSolidInBeaker = false;
               updateUI();
             };
           }
@@ -2117,20 +2399,48 @@
             updateUI();
           };
         }
-        const scaleAdd = layout.querySelector('#btn-scale-add');
-        if (scaleAdd) {
-          scaleAdd.onclick = () => {
-            const curWeight = state.scaleState.weight;
-            state.scaleState.weight = Math.min(curWeight + 1.25, 6.24);
-            updateUI();
-          };
-        }
+        
+        const adjustWeight = (amount) => {
+          if (!state.scaleState.power || !state.scaleState.tare) return;
+          state.scaleState.weight = Math.max(0, parseFloat((state.scaleState.weight + amount).toFixed(2)));
+          updateUI();
+        };
+
+        const btnScaleAdd125 = layout.querySelector('#btn-scale-add-125');
+        if (btnScaleAdd125) btnScaleAdd125.onclick = () => adjustWeight(1.25);
+
+        const btnScaleAdd1 = layout.querySelector('#btn-scale-add-1');
+        if (btnScaleAdd1) btnScaleAdd1.onclick = () => adjustWeight(1.0);
+
+        const btnScaleAdd01 = layout.querySelector('#btn-scale-add-01');
+        if (btnScaleAdd01) btnScaleAdd01.onclick = () => adjustWeight(0.1);
+
+        const btnScaleAdd001 = layout.querySelector('#btn-scale-add-001');
+        if (btnScaleAdd001) btnScaleAdd001.onclick = () => adjustWeight(0.01);
+
+        const btnScaleSub1 = layout.querySelector('#btn-scale-sub-1');
+        if (btnScaleSub1) btnScaleSub1.onclick = () => adjustWeight(-1.0);
+
+        const btnScaleSub01 = layout.querySelector('#btn-scale-sub-01');
+        if (btnScaleSub01) btnScaleSub01.onclick = () => adjustWeight(-0.1);
+
+        const btnScaleSub001 = layout.querySelector('#btn-scale-sub-001');
+        if (btnScaleSub001) btnScaleSub001.onclick = () => adjustWeight(-0.01);
+
         const scaleComplete = layout.querySelector('#btn-scale-complete');
         if (scaleComplete) {
           scaleComplete.onclick = () => {
             if (state.scaleState.weight === 6.24) {
-              state.subStep = 2;
+              localLoading = true;
+              isTransferringSolid = true;
               updateUI();
+              setTimeout(() => {
+                hasSolidInBeaker = true;
+                isTransferringSolid = false;
+                localLoading = false;
+                state.subStep = 2;
+                updateUI();
+              }, 2000);
             } else {
               alert("황산구리 5수화물의 질량을 정확히 6.24g으로 맞춰주세요!");
             }
@@ -2165,14 +2475,18 @@
         if (flaskTransfer) {
           flaskTransfer.onclick = () => {
             localLoading = true;
+            isPouring = true;
             updateUI();
             setTimeout(() => {
               state.flaskLiquid = state.beakerLiquid;
               state.beakerLiquid = 0;
+            }, 700);
+            setTimeout(() => {
+              isPouring = false;
               localLoading = false;
               state.subStep = 5;
               updateUI();
-            }, 1200);
+            }, 1800);
           };
         }
         const flaskRinse = layout.querySelector('#btn-flask-rinse');
@@ -2180,16 +2494,25 @@
           flaskRinse.onclick = () => {
             if (state.rinseCount >= 2) return;
             localLoading = true;
+            state.beakerLiquid = 15; // Spray water into beaker
             updateUI();
             setTimeout(() => {
-              state.rinseCount += 1;
-              state.flaskLiquid = Math.min(state.flaskLiquid + 15, 250);
-              localLoading = false;
-              if (state.rinseCount === 2) {
-                state.subStep = 6;
-              }
+              isPouring = true;
               updateUI();
-            }, 800);
+              setTimeout(() => {
+                state.flaskLiquid = Math.min(state.flaskLiquid + 15, 250);
+                state.beakerLiquid = 0;
+              }, 700);
+              setTimeout(() => {
+                isPouring = false;
+                state.rinseCount += 1;
+                if (state.rinseCount === 2) {
+                  state.subStep = 6;
+                }
+                localLoading = false;
+                updateUI();
+              }, 1800);
+            }, 500);
           };
         }
         const flaskWater23 = layout.querySelector('#btn-flask-water-23');
@@ -2223,11 +2546,32 @@
           flaskRange.oninput = (e) => {
             const val = parseInt(e.target.value);
             state.flaskLiquid = val;
+
+            const sliderValSpan = layout.querySelector('#flask-slider-val');
+            if (sliderValSpan) {
+              sliderValSpan.textContent = `${val} / 250 mL`;
+            }
+
+            const volTextSpan = layout.querySelector('#flask-volume-text');
+            if (volTextSpan) {
+              volTextSpan.textContent = `부피 플라스크 (${val}mL)`;
+            }
+
+            const flaskNeckLiquid = layout.querySelector('#flask-liquid-neck');
+            if (flaskNeckLiquid) {
+              if (val > 160) {
+                flaskNeckLiquid.style.display = 'block';
+                flaskNeckLiquid.style.top = `${100 - ((val - 160) / 90) * 100}%`;
+              } else {
+                flaskNeckLiquid.style.display = 'none';
+              }
+            }
+
             if (val === 250) {
               state.labProgress.cuso4Prepared = true;
               state.subStep = 9;
+              updateUI();
             }
-            updateUI();
           };
         }
 
@@ -2235,9 +2579,18 @@
         const naclAddCu = layout.querySelector('#btn-nacl-add-cu');
         if (naclAddCu) {
           naclAddCu.onclick = () => {
-            state.naclState.cuAdded = true;
-            state.subStep = 1;
+            localLoading = true;
+            isPipetting = true;
             updateUI();
+            setTimeout(() => {
+              state.naclState.cuAdded = true;
+            }, 2000);
+            setTimeout(() => {
+              isPipetting = false;
+              localLoading = false;
+              state.subStep = 1;
+              updateUI();
+            }, 2800);
           };
         }
         const naclAddDrop = layout.querySelector('#btn-nacl-add-drop');
@@ -2265,14 +2618,18 @@
         if (naclToCuvette) {
           naclToCuvette.onclick = () => {
             localLoading = true;
+            isPouring = true;
             updateUI();
             setTimeout(() => {
               state.naclState.inCuvette = true;
               state.cuvettesInRack.c1 = true;
               state.labProgress.naclFinished = true;
+            }, 700);
+            setTimeout(() => {
+              isPouring = false;
               localLoading = false;
               updateUI();
-            }, 1000);
+            }, 1800);
           };
         }
 
@@ -2280,9 +2637,18 @@
         const nh3AddCu = layout.querySelector('#btn-nh3-add-cu');
         if (nh3AddCu) {
           nh3AddCu.onclick = () => {
-            state.nh3State.cuAdded = true;
-            state.subStep = 1;
+            localLoading = true;
+            isPipetting = true;
             updateUI();
+            setTimeout(() => {
+              state.nh3State.cuAdded = true;
+            }, 2000);
+            setTimeout(() => {
+              isPipetting = false;
+              localLoading = false;
+              state.subStep = 1;
+              updateUI();
+            }, 2800);
           };
         }
         const nh3AddDrop = layout.querySelector('#btn-nh3-add-drop');
@@ -2327,14 +2693,18 @@
         if (nh3ToCuvette) {
           nh3ToCuvette.onclick = () => {
             localLoading = true;
+            isPouring = true;
             updateUI();
             setTimeout(() => {
               state.nh3State.inCuvette = true;
               state.cuvettesInRack.c2 = true;
               state.labProgress.nh3Finished = true;
+            }, 700);
+            setTimeout(() => {
+              isPouring = false;
               localLoading = false;
               updateUI();
-            }, 1000);
+            }, 1800);
           };
         }
 
@@ -2342,9 +2712,18 @@
         const glyAddCu = layout.querySelector('#btn-gly-add-cu');
         if (glyAddCu) {
           glyAddCu.onclick = () => {
-            state.glycineState.cuAdded = true;
-            state.subStep = 1;
+            localLoading = true;
+            isPipetting = true;
             updateUI();
+            setTimeout(() => {
+              state.glycineState.cuAdded = true;
+            }, 2000);
+            setTimeout(() => {
+              isPipetting = false;
+              localLoading = false;
+              state.subStep = 1;
+              updateUI();
+            }, 2800);
           };
         }
         const glyAddNaOH = layout.querySelector('#btn-gly-add-naoh');
@@ -2380,14 +2759,18 @@
         if (glyMix) {
           glyMix.onclick = () => {
             localLoading = true;
+            isPouringGlycine = true;
             updateUI();
             setTimeout(() => {
               state.glycineState.mixed = true;
               state.glycineState.solutionColor = 'var(--color-glycine)';
+            }, 700);
+            setTimeout(() => {
+              isPouringGlycine = false;
               localLoading = false;
               state.subStep = 4;
               updateUI();
-            }, 1200);
+            }, 1800);
           };
         }
         const glyDilute = layout.querySelector('#btn-gly-dilute');
@@ -2408,14 +2791,18 @@
         if (glyToCuvette) {
           glyToCuvette.onclick = () => {
             localLoading = true;
+            isPouring = true;
             updateUI();
             setTimeout(() => {
               state.glycineState.inCuvette = true;
               state.cuvettesInRack.c3 = true;
               state.labProgress.glycineFinished = true;
+            }, 700);
+            setTimeout(() => {
+              isPouring = false;
               localLoading = false;
               updateUI();
-            }, 1000);
+            }, 1800);
           };
         }
 
@@ -2891,12 +3278,12 @@
           <!-- Student identification -->
           <div class="report-section student-info">
             <div class="input-group">
-              <label class="input-label">학생 이름</label>
-              <input id="report-name" type="text" placeholder="예: 홍길동" class="text-input" value="${state.studentInfo.name}" ${state.submitted ? 'disabled' : ''} />
-            </div>
-            <div class="input-group">
               <label class="input-label">학번 (또는 조 이름)</label>
               <input id="report-student-id" type="text" placeholder="예: 20101" class="text-input" value="${state.studentInfo.studentId}" ${state.submitted ? 'disabled' : ''} />
+            </div>
+            <div class="input-group">
+              <label class="input-label">학생 이름</label>
+              <input id="report-name" type="text" placeholder="예: 홍길동" class="text-input" value="${state.studentInfo.name}" ${state.submitted ? 'disabled' : ''} />
             </div>
           </div>
 

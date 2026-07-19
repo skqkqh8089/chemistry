@@ -17,6 +17,13 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
   const [liquidColor, setLiquidColor] = useState('var(--color-water)');
   const [stirring, setStirring] = useState(false);
   
+  // Animation states
+  const [isTransferringSolid, setIsTransferringSolid] = useState(false);
+  const [isPouring, setIsPouring] = useState(false);
+  const [isPipetting, setIsPipetting] = useState(false);
+  const [isPouringGlycine, setIsPouringGlycine] = useState(false);
+  const [hasSolidInBeaker, setHasSolidInBeaker] = useState(false);
+  
   // Specific states for CuSO4 Prep (activeTab 0)
   const [scaleState, setScaleState] = useState({
     power: false,
@@ -70,6 +77,11 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
     setStirring(false);
     setDropAnimation(false);
     setLoading(false);
+    setIsTransferringSolid(false);
+    setIsPouring(false);
+    setIsPipetting(false);
+    setIsPouringGlycine(false);
+    setHasSolidInBeaker(false);
   };
 
   // Helper: Trigger liquid drop animation
@@ -101,19 +113,26 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
     if (subStep === 0) setSubStep(1);
   };
 
-  const addCuPowder = () => {
+  const adjustWeight = (amount) => {
     if (!scaleState.power || !scaleState.tare) return;
     setScaleState(prev => {
-      const nextWeight = Math.min(prev.weight + 1.25, 6.24);
+      const nextWeight = Math.max(0, prev.weight + amount);
       return { ...prev, weight: parseFloat(nextWeight.toFixed(2)) };
     });
   };
 
   const verifyWeight = () => {
     if (scaleState.weight === 6.24) {
-      setSubStep(2);
+      setLoading(true);
+      setIsTransferringSolid(true);
+      setTimeout(() => {
+        setHasSolidInBeaker(true);
+        setIsTransferringSolid(false);
+        setLoading(false);
+        setSubStep(2);
+      }, 2000);
     } else {
-      alert("황산구리 5수화물의 질량을 정확히 6.24g으로 맞춰주세요! (약 5번 스푼 클릭)");
+      alert("황산구리 5수화물의 질량을 정확히 6.24g으로 맞춰주세요!");
     }
   };
 
@@ -137,26 +156,41 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
   const transferToFlask = () => {
     setLoading(true);
+    setIsPouring(true);
     setTimeout(() => {
       setFlaskLiquid(prev => Math.min(prev + beakerLiquid, 250));
       setBeakerLiquid(0);
+    }, 700);
+    setTimeout(() => {
+      setIsPouring(false);
       setLoading(false);
       setSubStep(5);
-    }, 1200);
+    }, 1800);
   };
 
   const rinseBeaker = () => {
     if (rinseCount >= 2) return;
     setLoading(true);
+    setBeakerLiquid(15); // Show spray liquid in beaker first
     setTimeout(() => {
-      setRinseCount(prev => prev + 1);
-      // Transfer rinse water
-      setFlaskLiquid(prev => Math.min(prev + 15, 250));
-      setLoading(false);
-      if (rinseCount === 1) {
-        setSubStep(6);
-      }
-    }, 800);
+      setIsPouring(true);
+      setTimeout(() => {
+        setFlaskLiquid(prev => Math.min(prev + 15, 250));
+        setBeakerLiquid(0);
+      }, 700);
+      
+      setTimeout(() => {
+        setIsPouring(false);
+        setRinseCount(prev => {
+          const nextRinse = prev + 1;
+          if (nextRinse === 2) {
+            setSubStep(6);
+          }
+          return nextRinse;
+        });
+        setLoading(false);
+      }, 1800);
+    }, 500);
   };
 
   const addWaterToFlaskTwoThirds = () => {
@@ -187,8 +221,16 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
   // --- TAB 1: NaCl Reaction Logic ---
   const naclAddCuSO4 = () => {
-    setNaclState(prev => ({ ...prev, cuAdded: true }));
-    setSubStep(1);
+    setLoading(true);
+    setIsPipetting(true);
+    setTimeout(() => {
+      setNaclState(prev => ({ ...prev, cuAdded: true }));
+    }, 2000);
+    setTimeout(() => {
+      setIsPipetting(false);
+      setLoading(false);
+      setSubStep(1);
+    }, 2800);
   };
 
   const addNaClDrop = () => {
@@ -212,19 +254,31 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
   const pourNaClToCuvette = () => {
     setLoading(true);
+    setIsPouring(true);
     setTimeout(() => {
       setNaclState(prev => ({ ...prev, inCuvette: true }));
       setCuvettes(prev => ({ ...prev, c1: true }));
       setProgress(prev => ({ ...prev, naclFinished: true }));
+    }, 700);
+    setTimeout(() => {
+      setIsPouring(false);
       setLoading(false);
       setSubStep(4);
-    }, 1000);
+    }, 1800);
   };
 
   // --- TAB 2: NH3 Reaction Logic ---
   const nh3AddCuSO4 = () => {
-    setNh3State(prev => ({ ...prev, cuAdded: true }));
-    setSubStep(1);
+    setLoading(true);
+    setIsPipetting(true);
+    setTimeout(() => {
+      setNh3State(prev => ({ ...prev, cuAdded: true }));
+    }, 2000);
+    setTimeout(() => {
+      setIsPipetting(false);
+      setLoading(false);
+      setSubStep(1);
+    }, 2800);
   };
 
   const addNH3Drop = () => {
@@ -274,19 +328,31 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
   const pourNH3ToCuvette = () => {
     setLoading(true);
+    setIsPouring(true);
     setTimeout(() => {
       setNh3State(prev => ({ ...prev, inCuvette: true }));
       setCuvettes(prev => ({ ...prev, c2: true }));
       setProgress(prev => ({ ...prev, nh3Finished: true }));
+    }, 700);
+    setTimeout(() => {
+      setIsPouring(false);
       setLoading(false);
       setSubStep(5);
-    }, 1000);
+    }, 1800);
   };
 
   // --- TAB 3: Glycine Reaction Logic ---
   const glycineAddCuSO4 = () => {
-    setGlycineState(prev => ({ ...prev, cuAdded: true }));
-    setSubStep(1);
+    setLoading(true);
+    setIsPipetting(true);
+    setTimeout(() => {
+      setGlycineState(prev => ({ ...prev, cuAdded: true }));
+    }, 2000);
+    setTimeout(() => {
+      setIsPipetting(false);
+      setLoading(false);
+      setSubStep(1);
+    }, 2800);
   };
 
   const addNaOHDrop = () => {
@@ -312,15 +378,19 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
   const mixGlycine = () => {
     setLoading(true);
+    setIsPouringGlycine(true);
     setTimeout(() => {
       setGlycineState(prev => ({ 
         ...prev, 
         mixed: true,
         solutionColor: 'var(--color-glycine)' // Purple [Cu(Gly)2]
       }));
+    }, 700);
+    setTimeout(() => {
+      setIsPouringGlycine(false);
       setLoading(false);
       setSubStep(4);
-    }, 1200);
+    }, 1800);
   };
 
   const diluteGlycine = () => {
@@ -338,13 +408,17 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
   const pourGlyToCuvette = () => {
     setLoading(true);
+    setIsPouring(true);
     setTimeout(() => {
       setGlycineState(prev => ({ ...prev, inCuvette: true }));
       setCuvettes(prev => ({ ...prev, c3: true }));
       setProgress(prev => ({ ...prev, glycineFinished: true }));
+    }, 700);
+    setTimeout(() => {
+      setIsPouring(false);
       setLoading(false);
       setSubStep(6);
-    }, 1000);
+    }, 1800);
   };
 
   const isAllReactionsFinished = progress.naclFinished && progress.nh3Finished && progress.glycineFinished;
@@ -513,6 +587,26 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
 
         {/* INTERACTION AREA */}
         <div className="bench-display">
+          {isTransferringSolid && (
+            <>
+              <div className="weighing-paper-transfer animate-solid-transfer">
+                <div className="weighing-paper-powder"></div>
+              </div>
+              <div className="powder-drop-particles animate-powder-drop">
+                <div className="powder-particle"></div>
+                <div className="powder-particle"></div>
+                <div className="powder-particle"></div>
+              </div>
+            </>
+          )}
+
+          {isPipetting && (
+            <div className="pipette-tool-animate animate-pipetting">
+              <div className="pipette-bulb"></div>
+              <div className="pipette-liquid-content" style={{ height: '70%' }}></div>
+            </div>
+          )}
+
           {dropAnimation && (
             <div className="dropper-wrapper" style={{ top: '150px', left: 'calc(50% + 20px)' }}>
               <div className="dropper-bulb"></div>
@@ -528,67 +622,97 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
           {activeTab === 0 && (
             <>
               {/* Electronic Scale */}
-              {subStep <= 1 && (
-                <div className="scale-container">
+              {(subStep <= 1 || isTransferringSolid) && (
+                <div className="scale-container" style={{ opacity: isTransferringSolid ? 0.4 : 1, transition: 'opacity 0.5s' }}>
                   <div className="lab-scale">
                     <div className="scale-plate"></div>
                     <div className="scale-display">
                       {scaleState.power ? `${scaleState.weight.toFixed(2)} g` : 'OFF'}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                    <button onClick={handleScalePower} className="control-btn">전원</button>
-                    <button onClick={handleScaleTare} disabled={!scaleState.power} className="control-btn">영점(Tare)</button>
-                    <button onClick={addCuPowder} disabled={!scaleState.power || !scaleState.tare || scaleState.weight >= 6.24} className="control-btn">
-                      CuSO₄·5H₂O 계량 (+1.25g)
-                    </button>
-                  </div>
-                  {scaleState.weight === 6.24 && subStep === 1 && (
-                    <button onClick={verifyWeight} className="control-btn primary" style={{ marginTop: '0.5rem' }}>
-                      계량 완료
-                    </button>
+                  {!isTransferringSolid && (
+                    <>
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <button onClick={handleScalePower} className="control-btn">전원</button>
+                        <button onClick={handleScaleTare} disabled={!scaleState.power} className="control-btn">영점(Tare)</button>
+                        <button onClick={() => adjustWeight(1.25)} disabled={!scaleState.power || !scaleState.tare} className="control-btn">
+                          기본 스푼 (+1.25g)
+                        </button>
+                      </div>
+                      {scaleState.power && scaleState.tare && (
+                        <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', width: '100%' }}>
+                          <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+                            <button onClick={() => adjustWeight(1.0)} className="control-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>+1.00g</button>
+                            <button onClick={() => adjustWeight(0.1)} className="control-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>+0.10g</button>
+                            <button onClick={() => adjustWeight(0.01)} className="control-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>+0.01g</button>
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+                            <button onClick={() => adjustWeight(-1.0)} disabled={scaleState.weight <= 0} className="control-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>-1.00g</button>
+                            <button onClick={() => adjustWeight(-0.1)} disabled={scaleState.weight <= 0} className="control-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>-0.10g</button>
+                            <button onClick={() => adjustWeight(-0.01)} disabled={scaleState.weight <= 0} className="control-btn" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>-0.01g</button>
+                          </div>
+                        </div>
+                      )}
+                      {scaleState.weight === 6.24 && subStep === 1 && (
+                        <button onClick={verifyWeight} className="control-btn primary" style={{ marginTop: '0.5rem' }}>
+                          계량 완료
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               )}
 
               {/* Beaker with solution */}
-              {subStep >= 2 && subStep <= 3 && (
-                <div className="beaker-container">
+              {((subStep >= 2 && subStep <= 3) || isTransferringSolid) && (
+                <div className="beaker-container" style={{ transition: 'all 0.5s' }}>
                   {stirring && <div className="stirring-rod stirring"></div>}
                   {!stirring && subStep === 3 && <div className="stirring-rod"></div>}
                   <div className="beaker">
+                    {hasSolidInBeaker && (
+                      <div className="solid-powder-pile" style={{
+                        transform: stirring ? 'scale(0.2) translateY(5px)' : 'scale(1)',
+                        opacity: beakerLiquid > 0 && stirring ? 0.2 : 1
+                      }}></div>
+                    )}
                     <div className="liquid" style={{ height: `${beakerLiquid}%`, backgroundColor: beakerLiquid > 0 ? 'var(--color-cuso4)' : 'transparent' }}>
                       {beakerLiquid > 0 && <span style={{ fontSize: '0.65rem', color: '#fff', zIndex: 10 }}>50mL</span>}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                    {subStep === 2 && (
-                      <button onClick={pourWaterToBeaker} disabled={loading} className="control-btn primary">
-                        증류수 50mL 추가
-                      </button>
-                    )}
-                    {subStep === 3 && (
-                      <button onClick={stirBeaker} disabled={stirring} className="control-btn primary">
-                        유리막대로 젓기
-                      </button>
-                    )}
-                  </div>
+                  {!isTransferringSolid && (
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                      {subStep === 2 && (
+                        <button onClick={pourWaterToBeaker} disabled={loading} className="control-btn primary">
+                          증류수 50mL 추가
+                        </button>
+                      )}
+                      {subStep === 3 && (
+                        <button onClick={stirBeaker} disabled={stirring} className="control-btn primary">
+                          유리막대로 젓기
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Transfer Beaker -> Volumetric Flask */}
               {subStep >= 4 && subStep <= 8 && (
-                <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-end' }}>
+                <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-end', position: 'relative' }}>
                   {/* Beaker (emptying/rinsing) */}
-                  <div className="beaker-container" style={{ opacity: subStep >= 5 ? 0.6 : 1 }}>
+                  <div className={`beaker-container ${isPouring ? 'animate-pouring-beaker' : ''}`} style={{ opacity: subStep >= 5 ? 0.6 : 1, transition: 'all 0.3s' }}>
                     <div className="beaker">
                       <div className="liquid" style={{ height: `${beakerLiquid}%`, backgroundColor: beakerLiquid > 0 ? 'rgba(56, 189, 248, 0.4)' : 'transparent' }}></div>
                     </div>
                     <span style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>비커</span>
                   </div>
 
+                  {isPouring && (
+                    <div className="liquid-pour-stream active" style={{ left: '200px', top: '70px', height: '120px', backgroundColor: beakerLiquid > 0 ? 'var(--color-cuso4)' : 'rgba(56, 189, 248, 0.4)' }}></div>
+                  )}
+
                   {/* Volumetric Flask */}
-                  <div className="flask-container">
+                  <div className="flask-container" style={{ position: 'relative' }}>
                     <div className="volumetric-flask">
                       <div className="flask-neck">
                         <div className="flask-neck-line"></div>
@@ -601,28 +725,28 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                       </div>
                     </div>
                     <span style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>부피 플라스크 ({flaskLiquid}mL)</span>
-                  </div>
-                </div>
-              )}
 
-              {/* Sliders for fine measurement */}
-              {subStep === 8 && (
-                <div style={{ position: 'absolute', bottom: '110px', left: '50%', transform: 'translateX(-50%)', width: '220px', background: 'rgba(15,23,42,0.9)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.5rem' }}>
-                    <span>증류수 미세 조절 (눈높이 정렬)</span>
-                    <span style={{ color: 'var(--accent-rose)', fontWeight: 'bold' }}>{flaskLiquid} / 250 mL</span>
+                    {/* Sliders for fine measurement */}
+                    {subStep === 8 && (
+                      <div style={{ position: 'absolute', left: '130px', bottom: '20px', width: '220px', background: 'rgba(15,23,42,0.95)', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid var(--glass-border)', zIndex: 40 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.5rem' }}>
+                          <span>증류수 미세 조절</span>
+                          <span style={{ color: 'var(--accent-rose)', fontWeight: 'bold' }}>{flaskLiquid} / 250 mL</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="240"
+                          max="250"
+                          value={flaskLiquid}
+                          onChange={(e) => fillToMark(parseInt(e.target.value))}
+                          style={{ width: '100%', cursor: 'pointer' }}
+                        />
+                        <p style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '0.25rem', textAlign: 'center', lineHeight: 1.3 }}>
+                          슬라이더를 조작하여 눈금선에 맞추세요.
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <input
-                    type="range"
-                    min="240"
-                    max="250"
-                    value={flaskLiquid}
-                    onChange={(e) => fillToMark(parseInt(e.target.value))}
-                    style={{ width: '100%' }}
-                  />
-                  <p style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '0.25rem', textAlign: 'center' }}>
-                    슬라이더를 조작하여 눈금선(250mL)에 정확히 맞추세요.
-                  </p>
                 </div>
               )}
 
@@ -662,7 +786,7 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
           {/* TAB 1 RENDERING (NaCl Rx) */}
           {activeTab === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
-              <div style={{ display: 'flex', gap: '3rem', alignItems: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '3rem', alignItems: 'flex-end', position: 'relative' }}>
                 {/* CuSO4 standard solution */}
                 <div className="flask-container" style={{ opacity: 0.5 }}>
                   <div className="volumetric-flask">
@@ -675,7 +799,7 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                 </div>
 
                 {/* Reaction Beaker */}
-                <div className="beaker-container">
+                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s' }}>
                   <div className="beaker">
                     {naclState.cuAdded && (
                       <div className="liquid" style={{ height: '35%', backgroundColor: naclState.solutionColor }}>
@@ -685,6 +809,10 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                   </div>
                   <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 'bold' }}>반응 비커</span>
                 </div>
+
+                {isPouring && (
+                  <div className="liquid-pour-stream active" style={{ left: '330px', top: '120px', height: '110px', backgroundColor: naclState.solutionColor }}></div>
+                )}
 
                 {/* Cuvette 1 */}
                 <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)' }}>
@@ -724,9 +852,9 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
           {/* TAB 2 RENDERING (NH3 Rx) */}
           {activeTab === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
-              <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-end', position: 'relative' }}>
                 {/* Reaction Beaker */}
-                <div className="beaker-container">
+                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s' }}>
                   <div className="beaker">
                     {nh3State.cuAdded && (
                       <div className="liquid" style={{ height: '35%', backgroundColor: nh3State.solutionColor }}>
@@ -737,6 +865,10 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                   </div>
                   <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 'bold' }}>반응 비커</span>
                 </div>
+
+                {isPouring && (
+                  <div className="liquid-pour-stream active" style={{ left: '175px', top: '120px', height: '110px', backgroundColor: nh3State.solutionColor }}></div>
+                )}
 
                 {/* Cuvette 2 */}
                 <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)' }}>
@@ -783,7 +915,7 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
           {/* TAB 3 RENDERING (Glycine Rx) */}
           {activeTab === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-end', position: 'relative' }}>
                 {/* pH Test Strip */}
                 {glycineState.cuAdded && (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
@@ -793,7 +925,10 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                 )}
 
                 {/* Reaction Beaker */}
-                <div className="beaker-container">
+                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
+                  {isPouringGlycine && (
+                    <div className="liquid-pour-stream active" style={{ left: '60px', top: '-110px', height: '110px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
+                  )}
                   <div className="beaker">
                     {glycineState.cuAdded && (
                       <div className="liquid" style={{ height: '35%', backgroundColor: glycineState.solutionColor }}></div>
@@ -803,17 +938,22 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                 </div>
 
                 {/* Glycine Beaker */}
-                <div className="beaker-container" style={{ opacity: glycineState.glyPrepared ? (glycineState.mixed ? 0.4 : 1) : 0.2 }}>
-                  <div className="beaker" style={{ width: '80px', height: '100px' }}>
-                    {glycineState.glyPrepared && !glycineState.mixed && (
-                      <div className="liquid" style={{ height: '50%', backgroundColor: 'rgba(255,255,255,0.15)' }}></div>
-                    )}
+                {(!glycineState.mixed || isPouringGlycine) && (
+                  <div className={`beaker-container ${isPouringGlycine ? 'animate-pouring-glycine-beaker' : ''}`} style={{ opacity: glycineState.glyPrepared ? (glycineState.mixed ? 0.4 : 1) : 0.2, transition: 'all 0.3s' }}>
+                    <div className="beaker" style={{ width: '80px', height: '100px' }}>
+                      {glycineState.glyPrepared && !glycineState.mixed && (
+                        <div className="liquid" style={{ height: '50%', backgroundColor: 'rgba(255,255,255,0.15)' }}></div>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '0.7rem', marginTop: '0.5rem' }}>글라이신 비커</span>
                   </div>
-                  <span style={{ fontSize: '0.7rem', marginTop: '0.5rem' }}>글라이신 비커</span>
-                </div>
+                )}
 
                 {/* Cuvette 3 */}
-                <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)' }}>
+                <div className="cuvette-rack" style={{ padding: '0.5rem', background: 'rgba(0,0,0,0.2)', position: 'relative' }}>
+                  {isPouring && (
+                    <div className="liquid-pour-stream active" style={{ left: '25px', top: '-110px', height: '110px', backgroundColor: glycineState.solutionColor }}></div>
+                  )}
                   <div className="cuvette" style={{ opacity: glycineState.inCuvette ? 1 : 0.2 }}>
                     {glycineState.inCuvette && <div className="cuvette-liquid" style={{ backgroundColor: 'rgba(167, 139, 250, 0.7)' }}></div>}
                     <div className="cuvette-label">③</div>

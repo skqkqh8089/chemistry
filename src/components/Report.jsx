@@ -169,17 +169,6 @@ function Report({ scannedData, prevPhase }) {
         {/* Student identification */}
         <div className="report-section student-info">
           <div className="input-group">
-            <label className="input-label">학생 이름</label>
-            <input 
-              type="text" 
-              placeholder="예: 홍길동"
-              className="text-input"
-              value={studentInfo.name}
-              onChange={(e) => setStudentInfo(prev => ({ ...prev, name: e.target.value }))}
-              disabled={submitted}
-            />
-          </div>
-          <div className="input-group">
             <label className="input-label">학번 (또는 조 이름)</label>
             <input 
               type="text" 
@@ -187,6 +176,17 @@ function Report({ scannedData, prevPhase }) {
               className="text-input"
               value={studentInfo.studentId}
               onChange={(e) => setStudentInfo(prev => ({ ...prev, studentId: e.target.value }))}
+              disabled={submitted}
+            />
+          </div>
+          <div className="input-group">
+            <label className="input-label">학생 이름</label>
+            <input 
+              type="text" 
+              placeholder="예: 홍길동"
+              className="text-input"
+              value={studentInfo.name}
+              onChange={(e) => setStudentInfo(prev => ({ ...prev, name: e.target.value }))}
               disabled={submitted}
             />
           </div>
