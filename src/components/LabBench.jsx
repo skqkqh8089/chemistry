@@ -607,16 +607,7 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
             </div>
           )}
 
-          {dropAnimation && (
-            <div className="dropper-wrapper" style={{ top: '150px', left: 'calc(50% + 20px)' }}>
-              <div className="dropper-bulb"></div>
-              <div className="dropper-tube">
-                <div className="dropper-liquid" style={{ height: '30%' }}></div>
-              </div>
-              <div className="dropper-tip"></div>
-              <div className="chemical-drop" style={{ backgroundColor: dropColor }}></div>
-            </div>
-          )}
+
 
           {/* TAB 0 RENDERING */}
           {activeTab === 0 && (
@@ -796,7 +787,17 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                 </div>
 
                 {/* Reaction Beaker */}
-                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s' }}>
+                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
+                  {dropAnimation && (
+                    <div className="dropper-wrapper" style={{ position: 'absolute', top: '-110px', left: 'calc(50% - 12px)', zIndex: 30 }}>
+                      <div className="dropper-bulb"></div>
+                      <div className="dropper-tube">
+                        <div className="dropper-liquid" style={{ height: '30%', backgroundColor: dropColor }}></div>
+                      </div>
+                      <div className="dropper-tip"></div>
+                      <div className="chemical-drop" style={{ backgroundColor: dropColor }}></div>
+                    </div>
+                  )}
                   <div className="beaker">
                     {naclState.cuAdded && (
                       <div className="liquid" style={{ height: '35%', backgroundColor: naclState.solutionColor }}>
@@ -850,7 +851,17 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
               <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-end', position: 'relative' }}>
                 {/* Reaction Beaker */}
-                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s' }}>
+                <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
+                  {dropAnimation && (
+                    <div className="dropper-wrapper" style={{ position: 'absolute', top: '-110px', left: 'calc(50% - 12px)', zIndex: 30 }}>
+                      <div className="dropper-bulb"></div>
+                      <div className="dropper-tube">
+                        <div className="dropper-liquid" style={{ height: '30%', backgroundColor: dropColor }}></div>
+                      </div>
+                      <div className="dropper-tip"></div>
+                      <div className="chemical-drop" style={{ backgroundColor: dropColor }}></div>
+                    </div>
+                  )}
                   <div className="beaker">
                     {nh3State.cuAdded && (
                       <div className="liquid" style={{ height: '35%', backgroundColor: nh3State.solutionColor }}>
@@ -923,6 +934,16 @@ function LabBench({ progress, setProgress, setCuvettes, nextPhase }) {
                 <div className={`beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}`} style={{ transition: 'all 0.3s', position: 'relative' }}>
                   {isPouringGlycine && (
                     <div className="liquid-pour-stream active" style={{ left: '60px', top: '0', height: '60px', backgroundColor: 'rgba(255,255,255,0.2)', zIndex: 5 }}></div>
+                  )}
+                  {dropAnimation && (
+                    <div className="dropper-wrapper" style={{ position: 'absolute', top: '-110px', left: 'calc(50% - 12px)', zIndex: 30 }}>
+                      <div className="dropper-bulb"></div>
+                      <div className="dropper-tube">
+                        <div className="dropper-liquid" style={{ height: '30%', backgroundColor: dropColor }}></div>
+                      </div>
+                      <div className="dropper-tip"></div>
+                      <div className="chemical-drop" style={{ backgroundColor: dropColor }}></div>
+                    </div>
                   )}
                   <div className="beaker">
                     {glycineState.cuAdded && (

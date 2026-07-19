@@ -1953,22 +1953,7 @@
           benchDisplay.appendChild(pipetteOverlay);
         }
 
-        // Drop animation overlay
-        if (localDropAnimation) {
-          const dropper = document.createElement('div');
-          dropper.className = 'dropper-wrapper';
-          dropper.style.top = '100px';
-          dropper.style.left = 'calc(50% + 20px)';
-          dropper.innerHTML = `
-            <div class="dropper-bulb"></div>
-            <div class="dropper-tube">
-              <div class="dropper-liquid" style="height: 30%"></div>
-            </div>
-            <div class="dropper-tip"></div>
-            <div class="chemical-drop" style="background-color: ${localDropColor}"></div>
-          `;
-          benchDisplay.appendChild(dropper);
-        }
+
 
         // Render based on Active Tab
         if (state.activeTab === 0) {
@@ -2145,7 +2130,17 @@
               </div>
 
               <!-- Beaker -->
-              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s;">
+              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
+                ${localDropAnimation ? `
+                  <div class="dropper-wrapper" style="position: absolute; top: -110px; left: calc(50% - 12px); z-index: 30;">
+                    <div class="dropper-bulb"></div>
+                    <div class="dropper-tube">
+                      <div class="dropper-liquid" style="height: 30%; background-color: ${localDropColor};"></div>
+                    </div>
+                    <div class="dropper-tip"></div>
+                    <div class="chemical-drop" style="background-color: ${localDropColor};"></div>
+                  </div>
+                ` : ''}
                 <div class="beaker">
                   ${state.naclState.cuAdded ? `
                     <div class="liquid" style="height: 35%; background-color: ${state.naclState.solutionColor};">
@@ -2200,7 +2195,17 @@
           tab2Wrapper.innerHTML = `
             <div style="display: flex; gap: 2rem; align-items: flex-end; justify-content: center; width: 100%; position: relative;">
               <!-- Beaker -->
-              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s;">
+              <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
+                ${localDropAnimation ? `
+                  <div class="dropper-wrapper" style="position: absolute; top: -110px; left: calc(50% - 12px); z-index: 30;">
+                    <div class="dropper-bulb"></div>
+                    <div class="dropper-tube">
+                      <div class="dropper-liquid" style="height: 30%; background-color: ${localDropColor};"></div>
+                    </div>
+                    <div class="dropper-tip"></div>
+                    <div class="chemical-drop" style="background-color: ${localDropColor};"></div>
+                  </div>
+                ` : ''}
                 <div class="beaker">
                   ${state.nh3State.cuAdded ? `
                     <div class="liquid" style="height: 35%; background-color: ${state.nh3State.solutionColor};">
@@ -2272,6 +2277,16 @@
               <div class="beaker-container ${isPouring ? 'animate-pouring-to-cuvette' : ''}" style="transition: all 0.3s; position: relative;">
                 ${isPouringGlycine ? `
                   <div class="liquid-pour-stream active" style="left: 60px; top: 0; height: 60px; background-color: rgba(255,255,255,0.2); z-index: 5;"></div>
+                ` : ''}
+                ${localDropAnimation ? `
+                  <div class="dropper-wrapper" style="position: absolute; top: -110px; left: calc(50% - 12px); z-index: 30;">
+                    <div class="dropper-bulb"></div>
+                    <div class="dropper-tube">
+                      <div class="dropper-liquid" style="height: 30%; background-color: ${localDropColor};"></div>
+                    </div>
+                    <div class="dropper-tip"></div>
+                    <div class="chemical-drop" style="background-color: ${localDropColor};"></div>
+                  </div>
                 ` : ''}
                 <div class="beaker">
                   ${state.glycineState.cuAdded ? `
